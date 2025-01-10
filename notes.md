@@ -1,0 +1,2 @@
+## CS 240 Chess Project
+Let's see how well I can program chess considering that I do not know how to play chess as well as the fact that I have had a rocky relationship with Java. Sisyphus ain't got nothing on me.
