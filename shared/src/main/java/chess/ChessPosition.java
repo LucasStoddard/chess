@@ -7,6 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
+    // As much as I hate this, these values will be stored as 1 indexed, I will need to convert each time
+    // I use these values on the actual board to check for things
     private final int row;
     private final int col;
 

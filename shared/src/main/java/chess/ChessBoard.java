@@ -7,6 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    // IMPORTANT: Chessboard is indexed from bottom left 0-7 for rows, and then left to right 0-7 for columns
+    // BUT - moves are tested as if this is not zero indexed (1-8) for both rows and columns
     private ChessPiece[][] squares = new ChessPiece[8][8];
 
     public ChessBoard() {
@@ -20,7 +22,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        squares[position.getRow()][position.getColumn()] = piece;
+        squares[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -31,7 +33,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow()][position.getColumn()];
+        return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**

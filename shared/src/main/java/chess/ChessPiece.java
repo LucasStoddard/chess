@@ -52,6 +52,44 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        if (type == PieceType.BISHOP) { // first I will ignore the pieces on the board, then I will change this code to consider those pieces
+            int realRowStart = myPosition.getRow() - 1;
+            int realColStart = myPosition.getColumn() - 1;
+            int tempRow = realRowStart;
+            int tempCol = realColStart;
+            // up right, down right, down left, up left
+            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
+                tempRow++;
+                tempCol++;
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+            }
+            tempRow = realRowStart;
+            tempCol = realColStart;
+            // down right
+            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
+                tempRow++;
+                tempCol--;
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+            }
+            tempRow = realRowStart;
+            tempCol = realColStart;
+            // down left
+            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
+                tempRow--;
+                tempCol--;
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+            }
+            tempRow = realRowStart;
+            tempCol = realColStart;
+            // up left
+            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
+                tempRow++;
+                tempCol--;
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+            }
+
+        }
+        return moves;
     }
 }
