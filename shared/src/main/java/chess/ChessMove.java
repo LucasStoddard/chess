@@ -7,7 +7,7 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
-    // for now I am going to just set the proPiece to the same piece
+    // for now, I am going to just set the proPiece to the same piece
     private final ChessPosition sPosition;
     private final ChessPosition ePosition;
     private final ChessPiece.PieceType proPiece;

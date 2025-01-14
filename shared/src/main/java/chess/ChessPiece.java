@@ -62,15 +62,15 @@ public class ChessPiece {
             while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
                 tempRow++;
                 tempCol++;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
             }
             tempRow = realRowStart;
             tempCol = realColStart;
             // down right
             while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
-                tempRow++;
-                tempCol--;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+                tempRow--;
+                tempCol++;
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
             }
             tempRow = realRowStart;
             tempCol = realColStart;
@@ -78,7 +78,7 @@ public class ChessPiece {
             while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
                 tempRow--;
                 tempCol--;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
             }
             tempRow = realRowStart;
             tempCol = realColStart;
@@ -86,9 +86,8 @@ public class ChessPiece {
             while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
                 tempRow++;
                 tempCol--;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), type));
+                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
             }
-
         }
         return moves;
     }
