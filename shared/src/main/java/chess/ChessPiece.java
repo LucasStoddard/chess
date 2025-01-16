@@ -65,6 +65,38 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates and returns the moves in a consistent direction until the edge of the board or another piece is hit
+     * If the piece can be captured then it also returns that as a valid move
+     * Directions is given as [+1, +1] meaning up and right, aka increasing columns and rows with each move
+     * Also can be used as [+1, 0] which is just up, meaning this can be used for Queen, Bishop, and Rook movement
+     *
+     * @return Collection of valid moves
+     */
+    public Collection<ChessMove> moveUntilEdgeOrPiece(ChessBoard board, ChessPosition myPosition, int[] rowCol, ChessGame.TeamColor color) {
+        ArrayList<ChessMove> tempMoves = new ArrayList<>();
+        int tempRow = myPosition.getRow() - 1;
+        int tempCol = myPosition.getColumn() - 1;
+        while (true) {
+            if (tempRow + rowCol[0] > 7 || tempRow + rowCol[0] < 0 || tempCol + rowCol[1] > 7 || tempCol + rowCol[1] < 0) { // does it hit the wall?
+                break; // hahaha this is a literal edge case
+            }
+            ChessPiece tempPiece = board.getPiece(new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1));
+            if (tempPiece != null) { // does it hit a piece?
+                if (tempPiece.getTeamColor() == color) {
+                    break; // do not capture your own piece
+                } else {
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+                    break; // you can capture enemy piece
+                }
+            } else {
+                tempRow += rowCol[0];
+                tempCol += rowCol[1];
+                tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+            }
+        }
+        return tempMoves;
+    }
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -72,42 +104,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        // NOTE: I should really clean up this code, and I need to remake it so that the look ahead doesn't go out of bounds
+        // I just most likely need to make a method that is like checkUntil barrier or piece that takes in a direction
+        // like (+ +) that returns all the moves that defines, it would make this part many, many lines shorter
         ArrayList<ChessMove> moves = new ArrayList<>();
         if (type == PieceType.BISHOP) { // first I will ignore the pieces on the board, then I will change this code to consider those pieces
-            int realRowStart = myPosition.getRow() - 1;
-            int realColStart = myPosition.getColumn() - 1;
-            int tempRow = realRowStart;
-            int tempCol = realColStart;
-            // up right, down right, down left, up left
-            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
-                tempRow++;
-                tempCol++;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
-            }
-            tempRow = realRowStart;
-            tempCol = realColStart;
-            // down right
-            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
-                tempRow--;
-                tempCol++;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
-            }
-            tempRow = realRowStart;
-            tempCol = realColStart;
-            // down left
-            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
-                tempRow--;
-                tempCol--;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
-            }
-            tempRow = realRowStart;
-            tempCol = realColStart;
-            // up left
-            while (tempCol < 7 && tempRow < 7 && tempCol > 0 && tempRow > 0) {
-                tempRow++;
-                tempCol--;
-                moves.add(new ChessMove(myPosition, new ChessPosition(tempRow+1, tempCol+1), null));
-            }
+            int[] upRight = {1,1}; int[] downRight = {-1,1}; int[] downLeft = {-1,-1}; int[] upLeft = {1,-1};
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team));
         }
         return moves;
     }
