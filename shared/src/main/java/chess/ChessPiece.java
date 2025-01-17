@@ -72,7 +72,7 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> moveUntilEdgeOrPiece(ChessBoard board, ChessPosition myPosition, int[] rowCol, ChessGame.TeamColor color) {
+    public Collection<ChessMove> moveUntilEdgeOrPiece(ChessBoard board, ChessPosition myPosition, int[] rowCol, ChessGame.TeamColor color, boolean oneMoveFlag) {
         ArrayList<ChessMove> tempMoves = new ArrayList<>();
         int tempRow = myPosition.getRow() - 1;
         int tempCol = myPosition.getColumn() - 1;
@@ -93,6 +93,9 @@ public class ChessPiece {
                 tempCol += rowCol[1];
                 tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), null));
             }
+            if (oneMoveFlag) {
+                break;
+            }
         }
         return tempMoves;
     }
@@ -104,16 +107,46 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // NOTE: I should really clean up this code, and I need to remake it so that the look ahead doesn't go out of bounds
-        // I just most likely need to make a method that is like checkUntil barrier or piece that takes in a direction
-        // like (+ +) that returns all the moves that defines, it would make this part many, many lines shorter
+        //     { row , col }
+        //        + row
+        //           ^
+        // - col  ←     → + col
+        //           v
+        //         - row
         ArrayList<ChessMove> moves = new ArrayList<>();
-        if (type == PieceType.BISHOP) { // first I will ignore the pieces on the board, then I will change this code to consider those pieces
-            int[] upRight = {1,1}; int[] downRight = {-1,1}; int[] downLeft = {-1,-1}; int[] upLeft = {1,-1};
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team));
+        int[] upRight = {1,1}; int[] downRight = {-1,1}; int[] downLeft = {-1,-1}; int[] upLeft = {1,-1};
+        int[] up = {1,0}; int[] down = {-1, 0}; int[] right = {0, -1}; int[] left = {0, 1};
+        int[] knightUpRight = {2, 1}, knightUpLeft = {2, -1}, knightDownRight = {-2, 1}, knightDownLeft = {-2, -1};
+        int[] knightRightUp = {1, 2}, knightRightDown = {1, -2}, knightLeftUp = {-1, 2}, knightLeftDown = {-1, -2};
+        if (type == PieceType.BISHOP) { // I know this could be condensed, but I am keeping it this way (for now) for readability and my sanity
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, false));
+        } else if (type == PieceType.ROOK) {
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, left, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, right, team, false));
+        } else if (type == PieceType.QUEEN || type == PieceType.KING) {
+            boolean isKing = (type == PieceType.KING);
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, left, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, right, team, isKing));
+        } else if (type == PieceType.KNIGHT) {
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightUpRight, team, true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightUpLeft, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightDownRight, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightDownLeft, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightRightUp, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightRightDown, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftUp, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftDown, team,true));
         }
         return moves;
     }
