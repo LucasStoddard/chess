@@ -91,7 +91,7 @@ public class ChessPiece {
             } else {
                 tempRow += rowCol[0];
                 tempCol += rowCol[1];
-                tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+                tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), null));
             }
         }
         return tempMoves;
