@@ -84,14 +84,30 @@ public class ChessPiece {
             if (tempPiece != null) { // does it hit a piece?
                 if (tempPiece.getTeamColor() == color) {
                     break; // do not capture your own piece
-                } else {
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+                } else {  // CURRENT ISSUE: If a pawn can go diagonally and promote as well as just normally and promote only the diagonal is added?
+                    if (board.getPiece(myPosition).getPieceType() != PieceType.PAWN && Math.abs(rowCol[0] + rowCol[1]) != 1) {
+                        if ((tempRow + rowCol[0] == 0 || tempRow + rowCol[0] == 7) && board.getPiece(myPosition).getPieceType() == PieceType.PAWN) {
+                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.QUEEN));
+                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.ROOK));
+                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.BISHOP));
+                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.KNIGHT));
+                        } else {
+                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+                        }
+                        }
                     break; // you can capture enemy piece
                 }
             } else {
                 tempRow += rowCol[0];
                 tempCol += rowCol[1];
-                tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), null));
+                if ((tempRow == 0 || tempRow == 7) && board.getPiece(myPosition).getPieceType() == PieceType.PAWN) {
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.QUEEN));
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.ROOK));
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.BISHOP));
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.KNIGHT));
+                } else {
+                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), null));
+                }
             }
             if (oneMoveFlag) {
                 break;
@@ -118,6 +134,7 @@ public class ChessPiece {
         int[] up = {1,0}; int[] down = {-1, 0}; int[] right = {0, -1}; int[] left = {0, 1};
         int[] knightUpRight = {2, 1}, knightUpLeft = {2, -1}, knightDownRight = {-2, 1}, knightDownLeft = {-2, -1};
         int[] knightRightUp = {1, 2}, knightRightDown = {1, -2}, knightLeftUp = {-1, 2}, knightLeftDown = {-1, -2};
+        int[] whitePawnUp = {2,0}; int[] blackPawnDown = {-2, 0};
         if (type == PieceType.BISHOP) { // I know this could be condensed, but I am keeping it this way (for now) for readability and my sanity
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, false));
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, false));
@@ -147,6 +164,31 @@ public class ChessPiece {
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightRightDown, team,true));
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftUp, team,true));
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftDown, team,true));
+        } else if (type == PieceType.PAWN) {
+            if (team == ChessGame.TeamColor.WHITE) {
+                if (myPosition.getRow() == 2) { // first move as pawns cannot go backwards
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnUp, team, true));
+                }
+                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, true));
+                if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, true));
+                }
+                if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, true));
+                }
+            }
+            if (team == ChessGame.TeamColor.BLACK) {
+                if (myPosition.getRow() == 7) { // first move as pawns cannot go backwards
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnDown, team, true));
+                }
+                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, true));
+                if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, true));
+                }
+                if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, true));
+                }
+            }
         }
         return moves;
     }
