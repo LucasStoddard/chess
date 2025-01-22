@@ -94,6 +94,8 @@ public class ChessPiece {
                         } else {
                             tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
                         }
+                    } else if (board.getPiece(myPosition).getPieceType() != PieceType.PAWN) {
+                        tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
                     }
                     break; // you can capture enemy piece
                 }
