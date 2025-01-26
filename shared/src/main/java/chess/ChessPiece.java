@@ -65,6 +65,34 @@ public class ChessPiece {
     }
 
     /**
+     * @return true if this is a pawn that can be promoted here
+     */
+    public boolean promotionFlag(ChessPosition newPosition) {
+        if (type == PieceType.PAWN) {
+            if (team == ChessGame.TeamColor.BLACK) {
+                return (newPosition.getRow() == 1);
+            } else if (team == ChessGame.TeamColor.WHITE) {
+                return (newPosition.getRow() == 8);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return if the piece can capture here
+     */
+    public boolean canCapture(ChessBoard board, ChessPosition newPosition, int rowMove, int colMove) {
+        if (type != PieceType.PAWN) { // every other piece can capture if the pieces are different
+            return (team != board.getPiece(newPosition).getTeamColor());
+        } else {
+            if (rowMove + colMove == 0 || rowMove + colMove == 2 || rowMove + colMove == -2) { // if pawn is moving diagonally, it can capture
+                return (team != board.getPiece(newPosition).getTeamColor());
+            } else { // otherwise pawn cannot capture
+                return false;
+            }
+        }
+    }
+    /**
      * Calculates and returns the moves in a consistent direction until the edge of the board or another piece is hit
      * If the piece can be captured then it also returns that as a valid move
      * Directions is given as [+1, +1] meaning up and right, aka increasing columns and rows with each move
@@ -72,47 +100,47 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-    public Collection<ChessMove> moveUntilEdgeOrPiece(ChessBoard board, ChessPosition myPosition, int[] rowCol, ChessGame.TeamColor color, boolean oneMoveFlag) {
+    public Collection<ChessMove> moveUntilEdgeOrPiece(ChessBoard board, ChessPosition myPosition, int[][] allMoves, boolean oneMoveFlag) {
         ArrayList<ChessMove> tempMoves = new ArrayList<>();
-        int tempRow = myPosition.getRow() - 1;
-        int tempCol = myPosition.getColumn() - 1;
-        while (true) {
-            if (tempRow + rowCol[0] > 7 || tempRow + rowCol[0] < 0 || tempCol + rowCol[1] > 7 || tempCol + rowCol[1] < 0) { // does it hit the wall?
-                break; // hahaha this is a literal edge case
-            }
-            ChessPiece tempPiece = board.getPiece(new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1));
-            if (tempPiece != null) { // does it hit a piece?
-                if (tempPiece.getTeamColor() == color) {
-                    break; // do not capture your own piece
-                } else {  // CURRENT ISSUE: If a pawn can go diagonally and promote as well as just normally and promote only the diagonal is added?
-                    if (board.getPiece(myPosition).getPieceType() == PieceType.PAWN && Math.abs(rowCol[0] + rowCol[1]) != 1) {
-                        if ((tempRow + rowCol[0] == 0 || tempRow + rowCol[0] == 7) && board.getPiece(myPosition).getPieceType() == PieceType.PAWN) {
-                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.QUEEN));
-                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.ROOK));
-                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.BISHOP));
-                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), PieceType.KNIGHT));
-                        } else {
-                            tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
-                        }
-                    } else if (board.getPiece(myPosition).getPieceType() != PieceType.PAWN) {
-                        tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + rowCol[0] + 1, tempCol + rowCol[1] + 1), null));
+        for (int i = 0; i < allMoves.length; i++) { // for all the moves in the array
+            int tempRow = myPosition.getRow() - 1;
+            int tempCol = myPosition.getColumn() - 1;
+            int rowMove = allMoves[i][0];
+            int colMove = allMoves[i][1];
+            while (true) { // continue in one direction until stopped or one move completed
+                if (tempRow + rowMove + 1 > 8 || tempRow + rowMove + 1 < 1 || tempCol + colMove + 1 > 8 || tempCol + colMove + 1 < 1) { // OOB check
+                    break;
+                }
+                ChessPosition newPosition = new ChessPosition(tempRow + rowMove + 1, tempCol + colMove + 1);
+                if (board.ifPiece(newPosition) && canCapture(board, newPosition, rowMove, colMove)) { // if there's a piece and you can capture it
+                    if (promotionFlag(newPosition)) { // queen, rook, bishop, knight
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                        break;
+                    } else {
+                        tempMoves.add(new ChessMove(myPosition, newPosition, null));
+                        break;
                     }
-                    break; // you can capture enemy piece
+                } else if (board.ifPiece(newPosition)) { // if there's a piece, and you can't capture it
+                    break;
+                } else { // if there's no piece, then you can move
+                    if (promotionFlag(newPosition)) {
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                        tempMoves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                    } else {
+                        tempMoves.add(new ChessMove(myPosition, newPosition, null));
+                    }
                 }
-            } else {
-                tempRow += rowCol[0];
-                tempCol += rowCol[1];
-                if ((tempRow == 0 || tempRow == 7) && board.getPiece(myPosition).getPieceType() == PieceType.PAWN) {
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.QUEEN));
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.ROOK));
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.BISHOP));
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), PieceType.KNIGHT));
+                if (oneMoveFlag) {
+                    break;
                 } else {
-                    tempMoves.add(new ChessMove(myPosition, new ChessPosition(tempRow + 1, tempCol + 1), null));
+                    tempRow += rowMove;
+                    tempCol += colMove;
                 }
-            }
-            if (oneMoveFlag) {
-                break;
             }
         }
         return tempMoves;
@@ -134,69 +162,47 @@ public class ChessPiece {
         ArrayList<ChessMove> moves = new ArrayList<>();
         int[] upRight = {1,1}; int[] downRight = {-1,1}; int[] downLeft = {-1,-1}; int[] upLeft = {1,-1};
         int[] up = {1,0}; int[] down = {-1, 0}; int[] right = {0, -1}; int[] left = {0, 1};
-        int[] knightUpRight = {2, 1}, knightUpLeft = {2, -1}, knightDownRight = {-2, 1}, knightDownLeft = {-2, -1};
-        int[] knightRightUp = {1, 2}, knightRightDown = {1, -2}, knightLeftUp = {-1, 2}, knightLeftDown = {-1, -2};
-        int[] whitePawnUp = {2,0}; int[] blackPawnDown = {-2, 0};
+
+        int[][] bishopMoves = {upRight, downRight, downLeft, upLeft};
+        int[][] rookMoves = {up, down, right, left};
+        int[][] kingQueenMoves = {upRight, downRight, downLeft, upLeft, up, down, right, left};
+        int[][] knightMoves = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+        int[][] whitePawnMove = {up}; int[][] blackPawnMove = {down};
+        int[][] whitePawnLeft = {upLeft}; int[][] whitePawnRight = {upRight};
+        int[][] blackPawnLeft = {downLeft}; int[][] blackPawnRight = {downRight};
+        int[][] whitePawnFirstMove = {{2,0}}; int[][] blackPawnFirstMove = {{-2, 0}};
+
         if (type == PieceType.BISHOP) { // I know this could be condensed, but I am keeping it this way (for now) for readability and my sanity
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, bishopMoves, false));
         } else if (type == PieceType.ROOK) {
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, left, team, false));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, right, team, false));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, rookMoves, false));
         } else if (type == PieceType.QUEEN || type == PieceType.KING) {
             boolean isKing = (type == PieceType.KING);
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, left, team, isKing));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, right, team, isKing));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, kingQueenMoves, isKing));
         } else if (type == PieceType.KNIGHT) {
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightUpRight, team, true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightUpLeft, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightDownRight, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightDownLeft, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightRightUp, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightRightDown, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftUp, team,true));
-            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightLeftDown, team,true));
+            moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightMoves, true));
         } else if (type == PieceType.PAWN) {
             if (team == ChessGame.TeamColor.WHITE) {
-                if (myPosition.getRow() == 2 && (board.getPiece(new ChessPosition(3, myPosition.getColumn())) == null) && (board.getPiece(new ChessPosition(4, myPosition.getColumn())) == null)) { // first move as pawns cannot go backwards
-                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnUp, team, true));
+                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnMove, true));
+                if (board.ifPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1))) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnRight, true));
                 }
-                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, up, team, true));
-                if (myPosition.getColumn() != 1) {
-                    if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) != null) {
-                        moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upLeft, team, true));
-                    }
+                if (board.ifPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1))) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnLeft, true));
                 }
-                if (myPosition.getColumn() != 8) {
-                    if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) != null) {
-                        moves.addAll(moveUntilEdgeOrPiece(board, myPosition, upRight, team, true));
-                    }
+                if (myPosition.getRow() == 2 && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn())) == null && board.getPiece(new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn())) == null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnFirstMove, true));
                 }
-            }
-            if (team == ChessGame.TeamColor.BLACK) {
-                if (myPosition.getRow() == 7 && (board.getPiece(new ChessPosition(6, myPosition.getColumn())) == null) && (board.getPiece(new ChessPosition(5, myPosition.getColumn())) == null)) { // first move as pawns cannot go backwards
-                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnDown, team, true));
+            } else {
+                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnMove, true));
+                if (board.ifPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1))) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnRight, true));
                 }
-                moves.addAll(moveUntilEdgeOrPiece(board, myPosition, down, team, true));
-                if (myPosition.getColumn() != 1) {
-                    if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) != null) {
-                        moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downLeft, team, true));
-                    }
+                if (board.ifPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1))) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnLeft, true));
                 }
-                if (myPosition.getColumn() != 8) {
-                    if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) != null) {
-                        moves.addAll(moveUntilEdgeOrPiece(board, myPosition, downRight, team, true));
-                    }
+                if (myPosition.getRow() == 7 && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) == null && board.getPiece(new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn())) == null) {
+                    moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnFirstMove, true));
                 }
             }
         }

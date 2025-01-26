@@ -49,6 +49,22 @@ public class ChessBoard {
     }
 
     /**
+     * Checks if a piece exists at a certain location
+     *
+     * @param position The position to get the piece from
+     * @return true or false if there is a piece in that position
+     */
+    public boolean ifPiece(ChessPosition position) {
+        if (position.getRow() > 8 || position.getRow() < 1 || position.getColumn() > 8 || position.getColumn() < 1) {
+            return false;
+        } else if (getPiece(position) == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
