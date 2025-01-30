@@ -181,7 +181,7 @@ public class ChessPiece {
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, kingQueenMoves, isKing));
         } else if (type == PieceType.KNIGHT) {
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightMoves, true));
-        } else if (type == PieceType.PAWN) {
+        } else if (type == PieceType.PAWN) { // It may be wise to code in adding diagonal moves only if this function is called with a flag of capturing moves
             if (team == ChessGame.TeamColor.WHITE) {
                 moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnMove, true));
                 if (board.ifPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1))) {

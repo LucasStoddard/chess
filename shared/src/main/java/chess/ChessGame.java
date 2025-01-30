@@ -1,7 +1,7 @@
 package chess;
 
 import java.util.Collection;
-
+import java.util.ArrayList;
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -9,16 +9,37 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    public class PieceMoves {
+        private ChessPiece piece;
+        private Collection<ChessMove> moves;
+        public PieceMoves(ChessPiece piece, Collection<ChessMove> moves) {
+            this.piece = piece;
+            this.moves = moves;
+        }
+        public ChessPiece getPieceDetail() {
+            return piece;
+        }
+        public void setPieceDetail(ChessPiece piece) {
+            this.piece = piece;
+        }
+        public Collection<ChessMove> getMoves() {
+            return moves;
+        }
+        public void setMoves(Collection<ChessMove> moves) {
+            this.moves = moves;
+        }
+    }
+    private TeamColor teamTurn;
 
     public ChessGame() {
-
+        this.teamTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -27,7 +48,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -36,6 +57,23 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+
+    /**
+     * Gets either only the capturing moves or all the moves.
+     * The capturing moves of the opposing team are needed in order to determine valid king moves,
+     * as moving a king into check is not allowed, thus this method is needed. The addition of returning
+     * all the normal moves is helpful because it gives a list which can be filtered by validMoves in
+     * order to get a list to check against for makeMove.
+     * NOTE: Capture only isn't just capturing allowed moves, but also theoretical capture moves. A pawn cannot move
+     * diagonally if there is no piece there, but a King could also not move into that position because
+     * that would put the king in danger.
+     *
+     * @return list of format {{ChessPiece, {moves}}, {ChessPiece, {moves}}, {ChessPiece, {moves}}...}
+     */
+    public ArrayList<ArrayList<PieceMoves>> complexMoves(TeamColor team, boolean captureOnly) { // CURRENT SPOT: Just finished making the PieceMoves type for this function
+        throw new RuntimeException("Not implemented");
     }
 
     /**
