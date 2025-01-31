@@ -9,10 +9,10 @@ import java.util.ArrayList;
  * signature of the existing methods.
  */
 public class ChessGame {
-    public class PieceMoves {
+    public class PieceAndMoves {
         private ChessPiece piece;
         private Collection<ChessMove> moves;
-        public PieceMoves(ChessPiece piece, Collection<ChessMove> moves) {
+        public PieceAndMoves(ChessPiece piece, Collection<ChessMove> moves) {
             this.piece = piece;
             this.moves = moves;
         }
@@ -30,9 +30,10 @@ public class ChessGame {
         }
     }
     private TeamColor teamTurn;
-
+    private ChessBoard chessBoard;
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
+        this.chessBoard = new ChessBoard();
     }
 
     /**
@@ -59,23 +60,57 @@ public class ChessGame {
         BLACK
     }
 
+    public TeamColor invertTeam(TeamColor team) {
+        if (team == TeamColor.BLACK) {
+            return TeamColor.WHITE;
+        } else {
+            return TeamColor.BLACK;
+        }
+    }
 
     /**
-     * Gets either only the capturing moves or all the moves.
-     * The capturing moves of the opposing team are needed in order to determine valid king moves,
-     * as moving a king into check is not allowed, thus this method is needed. The addition of returning
-     * all the normal moves is helpful because it gives a list which can be filtered by validMoves in
+     * Gets all the moves. These are helpful because it gives a list which can be filtered by validMoves in
      * order to get a list to check against for makeMove.
-     * NOTE: Capture only isn't just capturing allowed moves, but also theoretical capture moves. A pawn cannot move
-     * diagonally if there is no piece there, but a King could also not move into that position because
-     * that would put the king in danger.
+     * NOTE: This produces moves assuming the King can move into check, validMoves will use this method but then
+     * remove the moves that put the King into check.
      *
      * @return list of format {{ChessPiece, {moves}}, {ChessPiece, {moves}}, {ChessPiece, {moves}}...}
      */
-    public ArrayList<ArrayList<PieceMoves>> complexMoves(TeamColor team, boolean captureOnly) { // CURRENT SPOT: Just finished making the PieceMoves type for this function
-        throw new RuntimeException("Not implemented");
-    }
+    public ArrayList<PieceAndMoves> complexNoCaptureMoves(TeamColor team) {
+        ArrayList<PieceAndMoves> tempList = new ArrayList<>();
+        ChessPiece tempPiece = null;
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if ((tempPiece = chessBoard.getPiece(new ChessPosition(i,j))) != null) {
+                    if (tempPiece.getTeamColor() == team) tempList.add(new PieceAndMoves(tempPiece, tempPiece.pieceMoves(chessBoard, new ChessPosition(i,j))));
+                }
+            }
+        }
+        return tempList;
+    } // TODO: for can capture flag, it may be helpful to temporarily invert the team of each piece (in move generation before reverting it) so that if the King captures a piece that move will exist, this still leaves the diagonal pawn moves to be manually made
 
+    /**
+     * Same as complexNoCaptureMoves but does other steps in order to produce all the places where the King could move
+     * that would put the King into check.
+     *
+     * @return list of format {{ChessPiece, {moves}}, {ChessPiece, {moves}}, {ChessPiece, {moves}}...}
+     */
+    public ArrayList<PieceAndMoves> complexCaptureMoves(TeamColor team) {
+        ArrayList<PieceAndMoves> tempList = new ArrayList<>();
+        ChessPiece tempPiece = null;
+        ChessPiece tempPieceInverted;
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if ((tempPiece = chessBoard.getPiece(new ChessPosition(i,j))) != null) {
+                    if (tempPiece.getTeamColor() == team && tempPiece.getPieceType() != ChessPiece.PieceType.PAWN) {
+                        tempPieceInverted = new ChessPiece(invertTeam(team), tempPiece.getPieceType());
+                        tempList.add(new PieceAndMoves(tempPiece, tempPieceInverted.pieceMoves(chessBoard, new ChessPosition(i,j))));
+                    }
+                }
+            }
+        }
+        return tempList;
+    }
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -134,7 +169,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        chessBoard = board;
     }
 
     /**
@@ -143,6 +178,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return chessBoard;
     }
 }
