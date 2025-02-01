@@ -19,6 +19,10 @@ public class ChessBoard {
         this.squares = new ChessPiece[8][8];
     }
 
+    public ChessBoard(ChessPiece[][] newSquares) {
+        this.squares = newSquares;
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -82,6 +86,10 @@ public class ChessBoard {
                                         {blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn},
                                         {blackRook, blackKnight, blackBishop, blackQueen, blackKing, blackBishop, blackKnight, blackRook}};
         squares = brandNewBoard;
+    }
+
+    public ChessPiece[][] getSquares() {
+        return squares;
     }
 
     // generated code
