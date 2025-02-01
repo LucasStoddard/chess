@@ -88,10 +88,6 @@ public class ChessBoard {
         squares = brandNewBoard;
     }
 
-    public ChessPiece[][] getSquares() {
-        return squares;
-    }
-
     // generated code
     @Override
     public boolean equals(Object o) {

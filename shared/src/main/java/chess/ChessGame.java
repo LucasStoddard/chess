@@ -68,18 +68,6 @@ public class ChessGame {
         }
     }
 
-//    public Collection<ChessMove> pawnDiagonals(TeamColor team, ChessPiece piece, ChessPosition position) {
-//        Collection<ChessMove> tempDiagonals = new ArrayList<>();
-//        if (piece.getTeamColor() == TeamColor.BLACK) {
-//            tempDiagonals.add(new ChessMove(position, new ChessPosition(position.getRow()-1, position.getColumn()-1), null));
-//            tempDiagonals.add(new ChessMove(position, new ChessPosition(position.getRow()-1, position.getColumn()+1), null));
-//        } else {
-//            tempDiagonals.add(new ChessMove(position, new ChessPosition(position.getRow()+1, position.getColumn()-1), null));
-//            tempDiagonals.add(new ChessMove(position, new ChessPosition(position.getRow()+1, position.getColumn()+1), null));
-//        }
-//        return tempDiagonals;
-//    }
-
     /**
      * Gets all the moves. These are helpful because it gives a list which can be filtered by validMoves in
      * order to get a list to check against for makeMove.
@@ -99,48 +87,46 @@ public class ChessGame {
             }
         }
         return tempList;
-    } // TODO: for can capture flag, it may be helpful to temporarily invert the team of each piece (in move generation before reverting it) so that if the King captures a piece that move will exist,
-      // TODO: this still leaves the diagonal pawn moves to be manually made
+    }
 
-    /**
-     * Same as complexNoCaptureMoves but does other steps in order to produce all the places where the King could move
-     * that would put the King into check.
-     *
-     * @return list of format {{ChessPiece, {moves}}, {ChessPiece, {moves}}, {ChessPiece, {moves}}...}
-     */
-//    public ArrayList<PieceAndMoves> complexCaptureMoves(TeamColor team) {
-//        ArrayList<PieceAndMoves> tempList = new ArrayList<>();
-//        ChessPiece tempPiece = null;
-//        ChessPiece tempPieceInverted;
-//        for (int i = 1; i < 9; i++) {
-//            for (int j = 1; j < 9; j++) {
-//                if ((tempPiece = chessBoard.getPiece(new ChessPosition(i,j))) != null) {
-//                    if (tempPiece.getTeamColor() == team && tempPiece.getPieceType() != ChessPiece.PieceType.PAWN) {
-//                        tempPieceInverted = new ChessPiece(invertTeam(team), tempPiece.getPieceType());
-//                        tempList.add(new PieceAndMoves(tempPiece, tempPieceInverted.pieceMoves(chessBoard, new ChessPosition(i,j))));
-//                    } else if (tempPiece.getTeamColor() == team && tempPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-//
-//                    }
-//                }
-//            }
-//        }
-//        return tempList;
-//    } // I MAY END UP NOT NEEDING THIS AS I'LL BE SIMULATING THE MOVES ANYWAYS
+    public ChessPosition getKingPosition(TeamColor team, ChessBoard board) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPiece tempPiece = board.getPiece(new ChessPosition(i,j));
+                if (tempPiece != null) {
+                    if (tempPiece.getPieceType() == ChessPiece.PieceType.KING && tempPiece.getTeamColor() == team) return new ChessPosition(i,j);
+                }
+            }
+        }
+        return null;
+    }
+
+    public ChessPiece[][] getDuplicateBoard(ChessBoard board) {
+        ChessPiece[][] copy = new ChessPiece[8][8];
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                copy[i-1][j-1] = board.getPiece(new ChessPosition(i,j));
+            }
+        }
+        return copy;
+    }
+
 
     public boolean kingCaptureIfMove(ChessMove move, ChessPiece piece) {
-        ChessPiece[][] simulatedChessSquares = chessBoard.getSquares();
-        ChessPosition sPos = move.getStartPosition();
-        ChessPosition ePos = move.getEndPosition();
-        simulatedChessSquares[sPos.getRow()-1][sPos.getColumn()-1] = null;
-        simulatedChessSquares[ePos.getRow()-1][ePos.getColumn()-1] = piece;
+        ChessPiece[][] simulatedChessSquares = getDuplicateBoard(chessBoard);
+        if (move != null) {
+            ChessPosition sPos = move.getStartPosition();
+            ChessPosition ePos = move.getEndPosition();
+            simulatedChessSquares[sPos.getRow() - 1][sPos.getColumn() - 1] = null;
+            simulatedChessSquares[ePos.getRow() - 1][ePos.getColumn() - 1] = piece;
+        }
         ChessBoard simulatedChessBoard = new ChessBoard(simulatedChessSquares);
         ArrayList<PieceAndMoves> potentialCaptures = complexMoves(simulatedChessBoard, invertTeam(piece.getTeamColor()));
-        // TODO: I need to get the king's position because I'm not testing for THIS piece being captured, I'm testing
-        // TODO: for moving this piece putting the KING in danger. Brutal how much you're assumed to know chess smh.
+        ChessPosition kingPos = getKingPosition(piece.getTeamColor(), simulatedChessBoard);
         for (int i = 0; i < potentialCaptures.size(); i++) {
             Collection<ChessMove> tempMoves = potentialCaptures.get(i).getMoves();
             for (ChessMove specificMoves : tempMoves) {
-                if (specificMoves.getEndPosition() == ePos) {
+                if (specificMoves.getEndPosition().getRow() == kingPos.getRow() && specificMoves.getEndPosition().getColumn() == kingPos.getColumn()) {
                     return true;
                 }
             }
@@ -156,19 +142,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece pieceToBeMoved = chessBoard.getPiece(startPosition);
-        TeamColor pieceTeam = pieceToBeMoved.getTeamColor();
-        Collection<ChessMove> unfilteredMoves = pieceToBeMoved.pieceMoves(chessBoard, startPosition);
         ArrayList<ChessMove> filteredMoves = new ArrayList<>();
+        ChessPiece pieceToBeMoved = chessBoard.getPiece(startPosition);
+        if (pieceToBeMoved == null) return filteredMoves;
+        Collection<ChessMove> unfilteredMoves = pieceToBeMoved.pieceMoves(chessBoard, startPosition);
         for (ChessMove evaluatedMove : unfilteredMoves) {
-            if (!kingCaptureIfMove(evaluatedMove, chessBoard.getPiece(startPosition))) {
-
-            } else {
-
+            if (!kingCaptureIfMove(evaluatedMove, pieceToBeMoved)) {
+                filteredMoves.add(evaluatedMove);
             }
         }
         return filteredMoves;
-    } // TODO: This may be stupid, but the best idea I have to invalidate moves is to do them on a separate board, then check if ANY opposing moves lead to a king capture
+    }
 
     /**
      * Makes a move in a chess game
@@ -187,7 +171,11 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (kingCaptureIfMove(null, chessBoard.getPiece(getKingPosition(teamColor, chessBoard)))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
