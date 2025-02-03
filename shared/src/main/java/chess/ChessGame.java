@@ -113,6 +113,7 @@ public class ChessGame {
 
 
     public boolean kingCaptureIfMove(ChessMove move, ChessPiece piece) {
+        ChessPiece[][] oldBoardSquares = getDuplicateBoard(chessBoard);
         ChessPiece[][] simulatedChessSquares = getDuplicateBoard(chessBoard);
         if (move != null) {
             ChessPosition sPos = move.getStartPosition();
@@ -121,16 +122,19 @@ public class ChessGame {
             simulatedChessSquares[ePos.getRow() - 1][ePos.getColumn() - 1] = piece;
         }
         ChessBoard simulatedChessBoard = new ChessBoard(simulatedChessSquares);
+        setBoard(simulatedChessBoard);
         ArrayList<PieceAndMoves> potentialCaptures = complexMoves(simulatedChessBoard, invertTeam(piece.getTeamColor()));
         ChessPosition kingPos = getKingPosition(piece.getTeamColor(), simulatedChessBoard);
         for (int i = 0; i < potentialCaptures.size(); i++) {
             Collection<ChessMove> tempMoves = potentialCaptures.get(i).getMoves();
             for (ChessMove specificMoves : tempMoves) {
                 if (specificMoves.getEndPosition().getRow() == kingPos.getRow() && specificMoves.getEndPosition().getColumn() == kingPos.getColumn()) {
+                    setBoard(new ChessBoard(oldBoardSquares));
                     return true;
                 }
             }
         }
+        setBoard(new ChessBoard(oldBoardSquares));
         return false;
     }
 
