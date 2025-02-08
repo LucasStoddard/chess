@@ -94,18 +94,26 @@ public class ChessGame {
         return tempList;
     }
 
+    /**
+     * @return king's position if there is one, null if not
+     */
     public ChessPosition getKingPosition(TeamColor team, ChessBoard board) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPiece tempPiece = board.getPiece(new ChessPosition(i,j));
                 if (tempPiece != null) {
-                    if (tempPiece.getPieceType() == ChessPiece.PieceType.KING && tempPiece.getTeamColor() == team) return new ChessPosition(i,j);
+                    if (tempPiece.getPieceType() == ChessPiece.PieceType.KING && tempPiece.getTeamColor() == team) {
+                        return new ChessPosition(i, j);
+                    }
                 }
             }
         }
         return null;
     }
 
+    /**
+     * @return copy of the original board, needed for the kingCaptureIfMove
+     */
     public ChessPiece[][] getDuplicateBoard(ChessBoard board) {
         ChessPiece[][] copy = new ChessPiece[8][8];
         for (int i = 1; i < 9; i++) {
@@ -116,7 +124,9 @@ public class ChessGame {
         return copy;
     }
 
-
+    /**
+     * @return true if the king is in danger of being captured following this move, false otherwise
+     */
     public boolean kingCaptureIfMove(ChessMove move, ChessPiece piece) {
         ChessPiece[][] oldBoardSquares = getDuplicateBoard(chessBoard);
         ChessPiece[][] simulatedChessSquares = getDuplicateBoard(chessBoard);
@@ -144,12 +154,9 @@ public class ChessGame {
     }
 
 
-    //     { row , col }
-    //        + row
-    //           ^
-    // - col  ←     → + col
-    //           v
-    //         - row
+    /**
+     * @return all the valid en passant moves, if there are none just returns an empty list
+     */
     Collection<ChessMove> enPassantMoves (ChessPosition sPos) {
         ArrayList<ChessMove> tempList = new ArrayList<>();
         ChessPiece tempPiece = chessBoard.getPiece(sPos);
@@ -177,9 +184,6 @@ public class ChessGame {
         return tempList;
     }
 
-    // Collection<ChessMove> castlingMoves (ChessPosition sPos)
-
-
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -193,7 +197,6 @@ public class ChessGame {
         if (pieceToBeMoved == null) return filteredMoves;
         Collection<ChessMove> unfilteredMoves = pieceToBeMoved.pieceMoves(chessBoard, startPosition);
         unfilteredMoves.addAll(enPassantMoves(startPosition));
-        // unfilteredMoves.addAll(CastlingMoves(startPosition));
         for (ChessMove evaluatedMove : unfilteredMoves) {
             if (!kingCaptureIfMove(evaluatedMove, pieceToBeMoved)) {
                 filteredMoves.add(evaluatedMove);
@@ -202,6 +205,9 @@ public class ChessGame {
         return filteredMoves;
     }
 
+    /**
+     * @return true if the pawn moves diagonally to an empty square, which is only possible in en passant
+     */
     boolean enPassantMoveHelper(ChessPosition sPos, ChessPosition ePos) {
         if (sPos.getRow() != ePos.getRow() && sPos.getColumn() != ePos.getColumn() && chessBoard.getPiece(ePos) == null) { // if diagonal move to empty square
             return true;
