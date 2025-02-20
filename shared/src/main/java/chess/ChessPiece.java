@@ -181,7 +181,7 @@ public class ChessPiece {
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, kingQueenMoves, isKing));
         } else if (type == PieceType.KNIGHT) {
             moves.addAll(moveUntilEdgeOrPiece(board, myPosition, knightMoves, true));
-        } else if (type == PieceType.PAWN) { // It may be wise to code in adding diagonal moves only if this function is called with a flag of capturing moves
+        } else if (type == PieceType.PAWN) {
             if (team == ChessGame.TeamColor.WHITE) {
                 moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnMove, true));
                 if (board.ifPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1))) {
@@ -190,7 +190,8 @@ public class ChessPiece {
                 if (board.ifPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1))) {
                     moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnLeft, true));
                 }
-                if (myPosition.getRow() == 2 && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn())) == null && board.getPiece(new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn())) == null) {
+                if (myPosition.getRow() == 2 && board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn())) == null &&
+                        board.getPiece(new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn())) == null) {
                     moves.addAll(moveUntilEdgeOrPiece(board, myPosition, whitePawnFirstMove, true));
                 }
             } else {
@@ -201,7 +202,8 @@ public class ChessPiece {
                 if (board.ifPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1))) {
                     moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnLeft, true));
                 }
-                if (myPosition.getRow() == 7 && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) == null && board.getPiece(new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn())) == null) {
+                if (myPosition.getRow() == 7 && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) == null &&
+                        board.getPiece(new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn())) == null) {
                     moves.addAll(moveUntilEdgeOrPiece(board, myPosition, blackPawnFirstMove, true));
                 }
             }

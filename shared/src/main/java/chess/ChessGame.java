@@ -143,7 +143,8 @@ public class ChessGame {
         for (int i = 0; i < potentialCaptures.size(); i++) {
             Collection<ChessMove> tempMoves = potentialCaptures.get(i).getMoves();
             for (ChessMove specificMoves : tempMoves) {
-                if (specificMoves.getEndPosition().getRow() == kingPos.getRow() && specificMoves.getEndPosition().getColumn() == kingPos.getColumn()) {
+                if (specificMoves.getEndPosition().getRow() == kingPos.getRow() &&
+                        specificMoves.getEndPosition().getColumn() == kingPos.getColumn()) {
                     setBoard(new ChessBoard(oldBoardSquares));
                     return true;
                 }
@@ -209,7 +210,7 @@ public class ChessGame {
      * @return true if the pawn moves diagonally to an empty square, which is only possible in en passant
      */
     boolean enPassantMoveHelper(ChessPosition sPos, ChessPosition ePos) {
-        if (sPos.getRow() != ePos.getRow() && sPos.getColumn() != ePos.getColumn() && chessBoard.getPiece(ePos) == null) { // if diagonal move to empty square
+        if (sPos.getRow() != ePos.getRow() && sPos.getColumn() != ePos.getColumn() && chessBoard.getPiece(ePos) == null) {
             return true;
         }
         return false;
