@@ -8,7 +8,7 @@ import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class UserService {
+public class UserService { // This is where (de)serialization happens
     UserDAO userDAO;
     AuthDAO authDAO;
 
@@ -20,6 +20,7 @@ public class UserService {
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
+
     public AuthData register(UserData registerRequest) throws DataAccessException {
         try {
             userDAO.addUser(registerRequest);
@@ -27,6 +28,7 @@ public class UserService {
             throw new DataAccessException(e.getMessage());
         }
     }
+
     public AuthData login(UserData loginRequest) {}
     public void logout(UserData logoutRequest) {}
 

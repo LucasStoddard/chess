@@ -1,4 +1,4 @@
 package server;
 
-public class GameHandler {
+public class GameHandler { // This is where (de)serialization happens
 }
