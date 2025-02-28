@@ -7,6 +7,12 @@ import service.*;
 
 public class Server {
     // JSON.stringify;
+    UserDAO user;
+    AuthDAO auth;
+    GameDAO game;
+    UserService userS;
+    GameService gameS;
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -14,7 +20,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here
 
-//        Spark.delete("/db", this::clear);
+        Spark.delete("/db", this::clear);
 //        Spark.post("/user", this::register);
 //        Spark.post("/session", this::login);
 //        Spark.delete("/session", this::logout);
@@ -34,7 +40,10 @@ public class Server {
         Spark.awaitStop();
     }
 
-    public void clear() {
-
+    public Object clear(Request request, Response response) {
+        userS.clear();
+        gameS.clear();
+        response.status(200);
+        return "{}";
     }
 }
