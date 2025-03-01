@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import dataAccess.*;
 import service.*;
 
+
 public class Server {
     // JSON.stringify;
     UserDAO user;
@@ -13,6 +14,13 @@ public class Server {
     UserService userS;
     GameService gameS;
 
+    public Server() {
+        user = new MemoryUserDAO();
+        auth = new MemoryAuthDAO();
+        game = new MemoryGameDAO();
+        userS = new UserService(user, auth);
+        gameS = new GameService(game, auth);
+    }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
