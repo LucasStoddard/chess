@@ -26,6 +26,16 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
+    public boolean ifGame(int gameID) {
+        for (GameData dbGame : db) {
+            if (dbGame.gameID() == gameID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public ArrayList<GameData> getAllGames() {
         return db;
     }

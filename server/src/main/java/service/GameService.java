@@ -16,15 +16,14 @@ public class GameService {
     }
 
     public ArrayList<GameData> list(AuthData authData) throws DataAccessException {
-        authDAO.findAuthData(authData);
+        authDAO.checkAuthData(authData.authToken());
         return gameDAO.getAllGames();
     }
 
     public GameData create(AuthData authData, String gameName) throws DataAccessException {
         authDAO.findAuthData(authData);
         int gameID = 1;
-        while (gameDAO.getGame(gameID)) { // need to adjust this because it conflicts with join
-            // or make  a check game separate method
+        while (gameDAO.ifGame(gameID)) {
             gameID++;
         }
         GameData newGame = new GameData(gameID, null, null, gameName, null);

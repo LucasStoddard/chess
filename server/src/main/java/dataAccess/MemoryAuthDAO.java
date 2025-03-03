@@ -1,7 +1,10 @@
 package dataAccess;
 
 import model.AuthData;
+import model.UserData;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
     ArrayList<AuthData> db;
@@ -16,12 +19,20 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData findAuthData(AuthData authData) throws DataAccessException {
+    public void findAuthData(AuthData authData) throws DataAccessException {
         if (!db.contains(authData)) {
             throw new DataAccessException("Error: unauthorized");
-        } else {
-            return authData;
         }
+    }
+
+    @Override
+    public void checkAuthData(String authData) throws DataAccessException {
+        for (AuthData authUser : db) {
+            if (Objects.equals(authUser.authToken(), authData)) {
+                return;
+            }
+        }
+        throw new DataAccessException("Error: unauthorized");
     }
 
     @Override

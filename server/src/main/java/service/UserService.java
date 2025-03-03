@@ -4,6 +4,7 @@ import dataAccess.*;
 import model.UserData;
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -20,11 +21,16 @@ public class UserService { // This is where (de)serialization happens
         return UUID.randomUUID().toString();
     }
 
-    public AuthData register(UserData registerRequest) {
+    public AuthData register(UserData registerRequest) throws DataAccessException {
         AuthData tempAuthData = new AuthData(registerRequest.username(), generateToken());
-        userDAO.addUser(registerRequest);
-        authDAO.addAuthData(tempAuthData);
-        return tempAuthData;
+        try {
+            userDAO.findUser(registerRequest.username());
+        } catch (DataAccessException e) {
+            userDAO.addUser(registerRequest);
+            authDAO.addAuthData(tempAuthData);
+            return tempAuthData;
+        }
+        throw new DataAccessException("Error: already taken");
     }
 
     public AuthData login(UserData loginRequest) throws DataAccessException {
