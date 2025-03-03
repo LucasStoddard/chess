@@ -25,10 +25,18 @@ public class UserService { // This is where (de)serialization happens
         userDAO.addUser(registerRequest);
         authDAO.addAuthData(tempAuthData);
         return tempAuthData;
-    } // this is where I am
+    }
 
-    public AuthData login(UserData loginRequest) {}
-    public void logout(UserData logoutRequest) {}
+    public AuthData login(UserData loginRequest) throws DataAccessException {
+        userDAO.login(loginRequest);
+        AuthData tempAuthData = new AuthData(loginRequest.username(), generateToken());
+        authDAO.addAuthData(tempAuthData);
+        return tempAuthData;
+    }
+
+    public void logout(AuthData logoutRequest) throws DataAccessException {
+        authDAO.deleteAuthData(logoutRequest);
+    }
 
     public void clear() {
         userDAO.clear();
