@@ -1,13 +1,13 @@
 package dataAccess;
 
 import model.GameData;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MemoryGameDAO implements GameDAO {
-    ArrayList<GameData> db;
+    HashSet<GameData> db;
 
     public MemoryGameDAO() {
-        db = new ArrayList<>(100);
+        db = new HashSet<>(100);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public ArrayList<GameData> getAllGames() {
+    public HashSet<GameData> getAllGames() {
         return db;
     }
 
@@ -54,6 +54,6 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void clear() {
-        db = new ArrayList<>(100);
+        db = new HashSet<>(100);
     }
 }

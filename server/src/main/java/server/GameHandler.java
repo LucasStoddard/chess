@@ -6,7 +6,7 @@ import model.*;
 import service.*;
 import spark.Request;
 import spark.Response;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GameHandler { // This is where (de)serialization happens
     GameService gameService;
@@ -23,7 +23,7 @@ public class GameHandler { // This is where (de)serialization happens
             throw new DataAccessException("Error: bad request");
         }
         try {
-            ArrayList<GameData> games = gameService.list(authDataString);
+            HashSet<GameData> games = gameService.list(authDataString);
             resp.status(200);
             return "{ \"games\": %s}".formatted(new Gson().toJson(games));
         } catch (DataAccessException e) {

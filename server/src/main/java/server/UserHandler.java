@@ -6,7 +6,6 @@ import model.*;
 import service.*;
 import spark.Request;
 import spark.Response;
-import java.util.ArrayList;
 
 public class UserHandler {
     UserService userService;
@@ -39,6 +38,7 @@ public class UserHandler {
         AuthData authData;
         if (userData.username() == null || userData.password() == null) {
             resp.status(500);
+            resp.body("{ \"message\": \"Error: bad request\" }");
             throw new DataAccessException("Error: bad request");
         }
         try {
@@ -47,6 +47,7 @@ public class UserHandler {
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
             resp.status(401);
+            resp.body("{ \"message\": \"Error: unauthorized\" }");
             throw new DataAccessException("Error: unauthorized");
         }
     }
@@ -55,6 +56,7 @@ public class UserHandler {
         AuthData authData = new Gson().fromJson(req.body(), AuthData.class);
         if (authData.username() == null || authData.authToken() == null) {
             resp.status(500);
+            resp.body("{ \"message\": \"Error: bad request\" }");
             throw new DataAccessException("Error: bad request");
         }
         try {

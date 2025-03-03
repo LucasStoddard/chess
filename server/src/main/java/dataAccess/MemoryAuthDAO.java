@@ -3,14 +3,14 @@ package dataAccess;
 import model.AuthData;
 import model.UserData;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class MemoryAuthDAO implements AuthDAO {
-    ArrayList<AuthData> db;
+    HashSet<AuthData> db;
 
     public MemoryAuthDAO() {
-        db = new ArrayList<>(100);
+        db = new HashSet<>(100);
     }
 
     @Override
@@ -39,6 +39,6 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void clear() {
-        db = new ArrayList<>(100);
+        db = new HashSet<>(100);
     }
 }

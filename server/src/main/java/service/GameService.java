@@ -3,8 +3,7 @@ package service;
 import dataAccess.*;
 import model.GameData;
 import model.AuthData;
-import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashSet;
 
 public class GameService {
     AuthDAO authDAO;
@@ -15,7 +14,7 @@ public class GameService {
         gameDAO = gamedao;
     }
 
-    public ArrayList<GameData> list(String authDataString) throws DataAccessException {
+    public HashSet<GameData> list(String authDataString) throws DataAccessException {
         authDAO.checkAuthData(authDataString);
         return gameDAO.getAllGames();
     }
