@@ -29,7 +29,7 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
-        Spark.staticFiles.location("web"); // TODO: UserHandler needs resp.body work
+        Spark.staticFiles.location("web");
         // TODO: Many services assume authData will be received, unfortunately it will most often be just a string so it need to be switched with checkAuthData();
 
         // Register your endpoints and handle exceptions here
@@ -38,9 +38,9 @@ public class Server {
         Spark.post("/user", userH::register);
         Spark.post("/session", userH::login);
         Spark.delete("/session", userH::logout);
-//        Spark.get("/game", gameH::listGames);
-//        Spark.post("/game", gameH::createGame);
-//        Spark.put("/game", gameH::joinGame);
+        Spark.get("/game", gameH::list);
+        Spark.post("/game", gameH::create);
+        Spark.put("/game", gameH::join);
 
         // This line initializes the server and can be removed once you have a functioning endpoint
         // Spark.init();

@@ -19,17 +19,10 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void findAuthData(AuthData authData) throws DataAccessException {
-        if (!db.contains(authData)) {
-            throw new DataAccessException("Error: unauthorized");
-        }
-    }
-
-    @Override
-    public void checkAuthData(String authData) throws DataAccessException {
+    public String checkAuthData(String authDataString) throws DataAccessException {
         for (AuthData authUser : db) {
-            if (Objects.equals(authUser.authToken(), authData)) {
-                return;
+            if (Objects.equals(authUser.authToken(), authDataString)) {
+                return authUser.username();
             }
         }
         throw new DataAccessException("Error: unauthorized");

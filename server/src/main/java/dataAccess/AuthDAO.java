@@ -13,8 +13,8 @@ public interface AuthDAO {
         // reducing the duplication of primary model objects.
     // OK I'm actually good hahaha.
     void addAuthData(AuthData authData);
-    void findAuthData(AuthData authData) throws DataAccessException;
-    void checkAuthData(String authData) throws DataAccessException;
+//    void findAuthData(AuthData authData) throws DataAccessException;
+    String checkAuthData(String authDataString) throws DataAccessException;
     void deleteAuthData(AuthData authData) throws DataAccessException;
     void clear();
 }

@@ -15,13 +15,13 @@ public class GameService {
         gameDAO = gamedao;
     }
 
-    public ArrayList<GameData> list(AuthData authData) throws DataAccessException {
-        authDAO.checkAuthData(authData.authToken());
+    public ArrayList<GameData> list(String authDataString) throws DataAccessException {
+        authDAO.checkAuthData(authDataString);
         return gameDAO.getAllGames();
     }
 
-    public GameData create(AuthData authData, String gameName) throws DataAccessException {
-        authDAO.findAuthData(authData);
+    public GameData create(String authDataString, String gameName) throws DataAccessException {
+        authDAO.checkAuthData(authDataString);
         int gameID = 1;
         while (gameDAO.ifGame(gameID)) {
             gameID++;
@@ -31,13 +31,13 @@ public class GameService {
         return newGame;
     }
 
-    public void join(AuthData authData, int gameID, boolean isWhite) throws DataAccessException {
-        authDAO.findAuthData(authData);
+    public void join(String authDataString, int gameID, String teamColor) throws DataAccessException {
+        String username = authDAO.checkAuthData(authDataString);
         GameData tempGame = gameDAO.getGame(gameID);
         GameData newGame;
-        if (isWhite) {
+        if (teamColor.equals("WHITE")) {
             if (tempGame.whiteUsername() == null) {
-                newGame = new GameData(tempGame.gameID(), authData.username(),
+                newGame = new GameData(tempGame.gameID(), username,
                         tempGame.blackUsername(), tempGame.gameName(), tempGame.game());
             } else {
                 throw new DataAccessException("Error: already taken");
@@ -45,7 +45,7 @@ public class GameService {
         } else {
             if (tempGame.blackUsername() == null) {
                 newGame = new GameData(tempGame.gameID(), tempGame.whiteUsername(),
-                        authData.username(), tempGame.gameName(), tempGame.game());
+                        username, tempGame.gameName(), tempGame.game());
             } else {
                 throw new DataAccessException("Error: already taken");
             }

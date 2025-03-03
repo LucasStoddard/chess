@@ -20,14 +20,16 @@ public class UserHandler {
         AuthData authData;
         if (userData.username() == null || userData.password() == null) {
             resp.status(400);
+            resp.body("{ \"message\": \"Error: bad request\" }");
             throw new DataAccessException("Error: bad request");
         }
         try {
             authData = userService.register(userData);
             resp.status(200);
             return new Gson().toJson(authData);
-        } catch (DataAccessException e) { // I'm not sure about the 500 error
+        } catch (DataAccessException e) {
             resp.status(403);
+            resp.body("{ \"message\": \"Error: already taken\" }");
             throw new DataAccessException(e.getMessage());
         }
     }
