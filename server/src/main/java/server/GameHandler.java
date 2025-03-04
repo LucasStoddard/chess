@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.*;
+import dataaccess.*;
 import model.*;
 import service.*;
 import spark.Request;
@@ -35,8 +35,8 @@ public class GameHandler { // This is where (de)serialization happens
 
     public Object create(Request req, Response resp) throws DataAccessException {
         String authDataString = req.headers("authorization");
-        record gameNameRequest(String gameName) {}
-        gameNameRequest gameName = new Gson().fromJson(req.body(), gameNameRequest.class);
+        record GameNameRequest(String gameName) {}
+        GameNameRequest gameName = new Gson().fromJson(req.body(), GameNameRequest.class);
         if (authDataString == null || gameName.gameName() == null) {
             resp.status(400);
             return "{ \"message\": \"Error: bad request\" }";
@@ -55,8 +55,8 @@ public class GameHandler { // This is where (de)serialization happens
 
     public Object join(Request req, Response resp) throws DataAccessException {
         String authDataString = req.headers("authorization");
-        record gameJoinRecord(String playerColor, int gameID) {};
-        gameJoinRecord gameJoin = new Gson().fromJson(req.body(), gameJoinRecord.class);
+        record GameJoinRecord(String playerColor, int gameID) {};
+        GameJoinRecord gameJoin = new Gson().fromJson(req.body(), GameJoinRecord.class);
         if (authDataString == null || gameJoin == null) {
             resp.status(400);
             return "{ \"message\": \"Error: bad request\" }";

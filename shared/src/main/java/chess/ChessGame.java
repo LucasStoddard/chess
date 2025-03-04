@@ -195,7 +195,9 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ArrayList<ChessMove> filteredMoves = new ArrayList<>();
         ChessPiece pieceToBeMoved = chessBoard.getPiece(startPosition);
-        if (pieceToBeMoved == null) return filteredMoves;
+        if (pieceToBeMoved == null) {
+            return filteredMoves;
+        }
         Collection<ChessMove> unfilteredMoves = pieceToBeMoved.pieceMoves(chessBoard, startPosition);
         unfilteredMoves.addAll(enPassantMoves(startPosition));
         for (ChessMove evaluatedMove : unfilteredMoves) {

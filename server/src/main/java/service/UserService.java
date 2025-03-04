@@ -1,11 +1,9 @@
 package service;
 
-import dataAccess.*;
+import dataaccess.*;
 import model.UserData;
 import model.AuthData;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserService { // This is where (de)serialization happens

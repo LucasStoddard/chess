@@ -1,11 +1,8 @@
 package server;
 
 import spark.*;
-import com.google.gson.Gson;
-import dataAccess.*;
+import dataaccess.*;
 import service.*;
-import server.UserHandler;
-import server.GameHandler;
 
 public class Server {
     // JSON.stringify;
@@ -30,7 +27,6 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-        // TODO: Many services assume authData will be received, unfortunately it will most often be just a string so it need to be switched with checkAuthData();
 
         // Register your endpoints and handle exceptions here
 
