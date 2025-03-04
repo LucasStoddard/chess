@@ -15,6 +15,6 @@ public interface AuthDAO {
     void addAuthData(AuthData authData);
 //    void findAuthData(AuthData authData) throws DataAccessException;
     String checkAuthData(String authDataString) throws DataAccessException;
-    void deleteAuthData(AuthData authData) throws DataAccessException;
+    void deleteAuthData(String authDataString) throws DataAccessException;
     void clear();
 }

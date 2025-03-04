@@ -17,12 +17,8 @@ public class UserService { // This is where (de)serialization happens
         authDAO = authdao;
     }
 
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
-
     public AuthData register(UserData registerRequest) throws DataAccessException {
-        AuthData tempAuthData = new AuthData(registerRequest.username(), generateToken());
+        AuthData tempAuthData = new AuthData(UUID.randomUUID().toString(), registerRequest.username());
         try {
             userDAO.findUser(registerRequest.username());
         } catch (DataAccessException e) {
@@ -35,12 +31,12 @@ public class UserService { // This is where (de)serialization happens
 
     public AuthData login(UserData loginRequest) throws DataAccessException {
         userDAO.login(loginRequest);
-        AuthData tempAuthData = new AuthData(loginRequest.username(), generateToken());
+        AuthData tempAuthData = new AuthData(UUID.randomUUID().toString(), loginRequest.username());
         authDAO.addAuthData(tempAuthData);
         return tempAuthData;
     }
 
-    public void logout(AuthData logoutRequest) throws DataAccessException {
+    public void logout(String logoutRequest) throws DataAccessException {
         authDAO.deleteAuthData(logoutRequest);
     }
 

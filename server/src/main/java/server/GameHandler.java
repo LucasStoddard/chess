@@ -19,8 +19,8 @@ public class GameHandler { // This is where (de)serialization happens
         String authDataString = req.headers("authorization");
         if (authDataString == null) {
             resp.status(500);
-            resp.body("{ \"message\": \"Error: bad request\" }");
-            throw new DataAccessException("Error: bad request");
+            return "{ \"message\": \"Error: bad request\" }";
+            // throw new DataAccessException("Error: bad request");
         }
         try {
             HashSet<GameData> games = gameService.list(authDataString);
@@ -28,8 +28,8 @@ public class GameHandler { // This is where (de)serialization happens
             return "{ \"games\": %s}".formatted(new Gson().toJson(games));
         } catch (DataAccessException e) {
             resp.status(401);
-            resp.body("{ \"message\": \"Error: unauthorized\" }");
-            throw new DataAccessException("Error: unauthorized");
+            return "{ \"message\": \"Error: unauthorized\" }";
+            // throw new DataAccessException("Error: unauthorized");
         }
     }
 
@@ -39,8 +39,8 @@ public class GameHandler { // This is where (de)serialization happens
         gameNameRequest gameName = new Gson().fromJson(req.body(), gameNameRequest.class);
         if (authDataString == null || gameName.gameName() == null) {
             resp.status(400);
-            resp.body("{ \"message\": \"Error: bad request\" }");
-            throw new DataAccessException("Error: bad request");
+            return "{ \"message\": \"Error: bad request\" }";
+            // throw new DataAccessException("Error: bad request");
         }
         try {
             GameData newGame = gameService.create(authDataString, gameName.gameName());
@@ -48,28 +48,33 @@ public class GameHandler { // This is where (de)serialization happens
             return "{ \"gameID\": %s}".formatted(new Gson().toJson(newGame.gameID()));
         } catch (DataAccessException e) {
             resp.status(401);
-            resp.body("{ \"message\": \"Error: unauthorized\" }");
-            throw new DataAccessException("Error: unauthorized");
+            return "{ \"message\": \"Error: unauthorized\" }";
+            // throw new DataAccessException("Error: unauthorized");
         }
     }
 
     public Object join(Request req, Response resp) throws DataAccessException {
         String authDataString = req.headers("authorization");
-        if (authDataString == null) {
-            resp.status(500);
-            resp.body("{ \"message\": \"Error: bad request\" }");
-            throw new DataAccessException("Error: bad request");
-        }
         record gameJoinRecord(String playerColor, int gameID) {};
         gameJoinRecord gameJoin = new Gson().fromJson(req.body(), gameJoinRecord.class);
+        if (authDataString == null || gameJoin == null) {
+            resp.status(400);
+            return "{ \"message\": \"Error: bad request\" }";
+            // throw new DataAccessException("Error: bad request");
+        }
         try {
             gameService.join(authDataString, gameJoin.gameID(), gameJoin.playerColor);
             resp.status(200);
             return "{}";
         } catch (DataAccessException e) {
-            resp.status(403);
-            resp.body("{ \"message\": \"Error: already taken\" }");
-            throw new DataAccessException(e.getMessage());
+            if (e.getMessage().contains("invalid color")) {
+                resp.status(400);
+                return "{ \"message\": \"Error: bad request\" }";
+            } else {
+                resp.status(401);
+                return "{ \"message\": \"Error: already taken\" }";
+            }
+            // throw new DataAccessException(e.getMessage());
         }
     }
 }

@@ -29,12 +29,14 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuthData(AuthData authData) throws DataAccessException {
-        if (!db.contains(authData)) {
-            throw new DataAccessException("Error: unauthorized");
-        } else {
-            db.remove(authData);
+    public void deleteAuthData(String authDataString) throws DataAccessException {
+        for (AuthData authUser : db) {
+            if (Objects.equals(authUser.authToken(), authDataString)) {
+                db.remove(authUser);
+                return;
+            }
         }
+        throw new DataAccessException("Error: unauthorized");
     }
 
     @Override

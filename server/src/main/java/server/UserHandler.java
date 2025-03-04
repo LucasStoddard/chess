@@ -19,8 +19,8 @@ public class UserHandler {
         AuthData authData;
         if (userData.username() == null || userData.password() == null) {
             resp.status(400);
-            resp.body("{ \"message\": \"Error: bad request\" }");
-            throw new DataAccessException("Error: bad request");
+            return "{ \"message\": \"Error: bad request\" }";
+            //throw new DataAccessException("Error: bad request");
         }
         try {
             authData = userService.register(userData);
@@ -28,8 +28,7 @@ public class UserHandler {
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
             resp.status(403);
-            resp.body("{ \"message\": \"Error: already taken\" }");
-            throw new DataAccessException(e.getMessage());
+            return "{ \"message\": \"Error: already taken\" }";
         }
     }
 
@@ -47,25 +46,25 @@ public class UserHandler {
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
             resp.status(401);
-            resp.body("{ \"message\": \"Error: unauthorized\" }");
-            throw new DataAccessException("Error: unauthorized");
+            return "{ \"message\": \"Error: unauthorized\" }";
+            //throw new DataAccessException("Error: unauthorized");
         }
     }
 
     public Object logout(Request req, Response resp) throws DataAccessException {
-        AuthData authData = new Gson().fromJson(req.body(), AuthData.class);
-        if (authData.username() == null || authData.authToken() == null) {
+        String authDataString = req.headers("authorization");
+        if (authDataString == null) {
             resp.status(500);
-            resp.body("{ \"message\": \"Error: bad request\" }");
-            throw new DataAccessException("Error: bad request");
+            return "{ \"message\": \"Error: bad request\" }";
+            //throw new DataAccessException("Error: bad request");
         }
         try {
-            userService.logout(authData);
+            userService.logout(authDataString);
             resp.status(200);
-            return new Gson().toJson(authData);
+            return "{}";
         } catch (DataAccessException e) {
             resp.status(401);
-            throw new DataAccessException(e.getMessage());
+            return "{ \"message\": \"Error: unauthorized\" }";
         }
     }
 }
