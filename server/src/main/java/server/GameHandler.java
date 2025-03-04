@@ -62,19 +62,28 @@ public class GameHandler { // This is where (de)serialization happens
             return "{ \"message\": \"Error: bad request\" }";
             // throw new DataAccessException("Error: bad request");
         }
+        if (gameJoin.playerColor() == null) {
+            resp.status(400);
+            return "{ \"message\": \"Error: bad request\" }";
+        } else if (!gameJoin.playerColor().equals("WHITE") && !gameJoin.playerColor().equals("BLACK")) {
+            resp.status(400);
+            return "{ \"message\": \"Error: bad request\" }";
+        }
         try {
             gameService.join(authDataString, gameJoin.gameID(), gameJoin.playerColor);
             resp.status(200);
             return "{}";
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("invalid color")) {
+            if (e.getMessage().contains("invalid game")) {
                 resp.status(400);
                 return "{ \"message\": \"Error: bad request\" }";
-            } else {
+            } else if (e.getMessage().contains("unauthorized")) {
                 resp.status(401);
                 return "{ \"message\": \"Error: already taken\" }";
+            } else {
+                resp.status(403);
+                return "{ \"message\": \"Error: already taken\" }";
             }
-            // throw new DataAccessException(e.getMessage());
         }
     }
 }

@@ -22,7 +22,7 @@ public class MemoryGameDAO implements GameDAO {
                 return dbGame;
             }
         }
-        throw new DataAccessException("Error: bad request");
+        throw new DataAccessException("Error: invalid game");
     }
 
     @Override

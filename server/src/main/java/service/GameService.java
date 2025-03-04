@@ -35,9 +35,6 @@ public class GameService {
         String username = authDAO.checkAuthData(authDataString);
         GameData tempGame = gameDAO.getGame(gameID);
         GameData newGame;
-        if (teamColor == null) {
-            throw new DataAccessException("Error: invalid color");
-        }
         if (teamColor.equals("WHITE")) {
             if (tempGame.whiteUsername() == null) {
                 newGame = new GameData(tempGame.gameID(), username,
