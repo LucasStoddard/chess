@@ -1,9 +1,13 @@
 package server;
 
+import dataaccess.memory.MemoryAuthDAO;
+import dataaccess.memory.MemoryGameDAO;
+import dataaccess.memory.MemoryUserDAO;
 import spark.*;
 import dataaccess.*;
 import service.*;
 
+//TODO: SQLDAOs framework
 public class Server {
     // JSON.stringify;
     UserDAO user;
