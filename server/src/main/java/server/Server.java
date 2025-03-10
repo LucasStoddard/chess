@@ -7,6 +7,7 @@ import spark.*;
 import dataaccess.*;
 import service.*;
 
+//TODO: Create CREATE statements for tables I created
 //TODO: SQLDAOs framework
 public class Server {
     // JSON.stringify;
