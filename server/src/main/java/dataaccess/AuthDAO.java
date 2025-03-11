@@ -12,9 +12,9 @@ public interface AuthDAO {
         // what the method needs to operate, but it does simplify your architecture by
         // reducing the duplication of primary model objects.
     // OK I'm actually good hahaha.
-    void addAuthData(AuthData authData);
+    void addAuthData(AuthData authData) throws DataAccessException;
 //    void findAuthData(AuthData authData) throws DataAccessException;
     String checkAuthData(String authDataString) throws DataAccessException;
     void deleteAuthData(String authDataString) throws DataAccessException;
-    void clear();
+    void clear() throws DataAccessException;
 }
