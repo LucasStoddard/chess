@@ -32,6 +32,7 @@ public abstract class SQLDAO {
                         whiteUsername VARCHAR(255),
                         blackUsername VARCHAR(255),
                         gameName VARCHAR(255) NOT NULL,
+                        game TEXT,
                     )""";
             try (var createAccountTableStatement = conn.prepareStatement(createAccountTable)) {
                 createAccountTableStatement.executeUpdate();

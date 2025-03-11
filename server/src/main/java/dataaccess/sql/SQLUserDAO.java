@@ -69,7 +69,7 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
                 preparedStatement.executeUpdate();
             }
         } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException("Error clearing tables");
+            throw new DataAccessException("Error clearing account table");
         }
     }
 }
