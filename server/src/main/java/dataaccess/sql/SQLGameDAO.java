@@ -1,18 +1,15 @@
 package dataaccess.sql;
 
 import chess.ChessGame;
-import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import com.google.gson.Gson;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
-import model.UserData;
 import model.GameData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.HashSet;
-import java.util.Objects;
+
 
 public class SQLGameDAO extends SQLDAO implements GameDAO {
     public SQLGameDAO() throws DataAccessException {}
