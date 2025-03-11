@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.UserData;
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class UserService { // This is where (de)serialization happens
@@ -38,8 +39,12 @@ public class UserService { // This is where (de)serialization happens
         authDAO.deleteAuthData(logoutRequest);
     }
 
-    public void clear() {
-        userDAO.clear();
-        authDAO.clear();
+    public void clear() throws DataAccessException {
+        try {
+            userDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 }

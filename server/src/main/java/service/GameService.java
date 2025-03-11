@@ -52,8 +52,12 @@ public class GameService {
         gameDAO.updateGame(newGame);
     }
 
-    public void clear() {
-        gameDAO.clear();
-        authDAO.clear();
+    public void clear() throws DataAccessException {
+        try {
+            gameDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 }

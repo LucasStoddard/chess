@@ -92,7 +92,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void testClearUserService() {
+    public void testClearUserService() throws DataAccessException {
         UserDAO user = new MemoryUserDAO();
         AuthDAO auth = new MemoryAuthDAO();
         UserService userS = new UserService(user, auth);
@@ -100,7 +100,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void testClearGameService() {
+    public void testClearGameService() throws DataAccessException {
         GameDAO game = new MemoryGameDAO();
         AuthDAO auth = new MemoryAuthDAO();
         GameService gameS = new GameService(game, auth);
@@ -209,9 +209,6 @@ public class ServiceUnitTests {
             Assertions.assertEquals("Error: already taken", e.getMessage());
         }
     }
-
-
-
 }
 
 

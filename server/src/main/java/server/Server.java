@@ -1,14 +1,11 @@
 package server;
 
-import dataaccess.memory.MemoryAuthDAO;
-import dataaccess.memory.MemoryGameDAO;
-import dataaccess.memory.MemoryUserDAO;
+import dataaccess.memory.*;
+import dataaccess.sql.*;
 import spark.*;
 import dataaccess.*;
 import service.*;
 
-//TODO: Create CREATE statements for tables I created
-//TODO: SQLDAOs framework
 public class Server {
     // JSON.stringify;
     UserDAO user;
@@ -19,6 +16,8 @@ public class Server {
     UserHandler userH;
     GameHandler gameH;
 
+    // TODO: Current problem is setting up either memory auth dao or SQL auth dao,
+    // TODO: It doesn't really explain this anywhere that I've seen.
     public Server() {
         user = new MemoryUserDAO();
         auth = new MemoryAuthDAO();
@@ -28,6 +27,7 @@ public class Server {
         userH = new UserHandler(userS);
         gameH = new GameHandler(gameS);
     }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -55,7 +55,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    public Object clear(Request req, Response resp) {
+    public Object clear(Request req, Response resp) throws DataAccessException {
         userS.clear();
         gameS.clear();
         resp.status(200);
