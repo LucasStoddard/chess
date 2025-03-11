@@ -10,10 +10,7 @@ public abstract class SQLDAO {
     public SQLDAO() throws DataAccessException {
         setUpDatabase();
     }
-
-
-
-
+    
     private void setUpDatabase() throws DataAccessException {
         try {
             DatabaseManager.createDatabase();
