@@ -1,10 +1,13 @@
 package server;
 
+import dataaccess.DatabaseManager;
 import dataaccess.memory.*;
 import dataaccess.sql.*;
 import spark.*;
 import dataaccess.*;
 import service.*;
+
+import java.sql.SQLException;
 
 public class Server {
     // JSON.stringify;
@@ -16,12 +19,16 @@ public class Server {
     UserHandler userH;
     GameHandler gameH;
 
-    // TODO: Current problem is setting up either memory auth dao or SQL auth dao,
-    // TODO: It doesn't really explain this anywhere that I've seen.
+    // Okay you just swap Memory DAOs for SQL DAOs
     public Server() {
-        user = new MemoryUserDAO();
-        auth = new MemoryAuthDAO();
-        game = new MemoryGameDAO();
+        try (var conn = DatabaseManager.getConnection()) {
+            user = new SQLUserDAO(conn);
+            auth = new SQLAuthDAO(conn);
+            game = new SQLGameDAO(conn);
+        } catch (DataAccessException | SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println("Server failed to set up");
+        }
         userS = new UserService(user, auth);
         gameS = new GameService(game, auth);
         userH = new UserHandler(userS);
