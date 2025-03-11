@@ -19,7 +19,9 @@ public class Server {
     UserHandler userH;
     GameHandler gameH;
 
-    // Okay you just swap Memory DAOs for SQL DAOs
+    // TODO: Figure out what is going wrong on the connection side of things
+    // TODO: Is most likely a problem with the SQLDAO extends thingymajig or DatabaseManager
+    // IDK
     public Server() {
         try (var conn = DatabaseManager.getConnection()) {
             user = new SQLUserDAO(conn);
