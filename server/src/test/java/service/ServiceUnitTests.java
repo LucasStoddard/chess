@@ -1,4 +1,4 @@
-package dataaccess;
+package service;
 
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
