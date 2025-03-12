@@ -34,6 +34,7 @@ public class Server {
         gameH = new GameHandler(gameS);
     }
 
+    // TODO: We are now passing most tests, there seems to be problems within the code (mainly for game creation but also a little with auth)
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
