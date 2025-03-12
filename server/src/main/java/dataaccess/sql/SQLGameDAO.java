@@ -14,8 +14,13 @@ import java.util.HashSet;
 public class SQLGameDAO implements GameDAO {
     private Connection conn;
 
-    public SQLGameDAO(Connection connection) throws DataAccessException {
+    public SQLGameDAO(Connection connection) {
         conn = connection;
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            System.out.println("Error creating database");
+        }
         var createGameTable = """
                     CREATE TABLE IF NOT EXISTS game_table (
                         gameID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -27,12 +32,12 @@ public class SQLGameDAO implements GameDAO {
         try (var createGameTableStatement = conn.prepareStatement(createGameTable)) {
             createGameTableStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            System.out.println("Error creating game_table");
         }
     }
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
+    public void createGame(GameData game) {
         try {
             conn = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
@@ -59,10 +64,10 @@ public class SQLGameDAO implements GameDAO {
                     preparedStatement.executeUpdate();
                 }
             } else {
-                throw new DataAccessException("Error: invalid name");
+                System.out.println("Bad name");;
             }
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException("Error creating game");
+        } catch (SQLException e) {
+            System.out.println("createGame error");;
         }
     }
 
@@ -84,7 +89,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: invalid game name");
+            System.out.println("Invalid game name");;
         }
         throw new DataAccessException("Error: invalid game");
     }
@@ -106,7 +111,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: invalid game");
+            System.out.println("ifGame error");
         }
         return false;
     }
@@ -130,7 +135,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error retrieving games");
+            System.out.println("getAllGames error");
         }
         return allGames;
     }
@@ -144,34 +149,39 @@ public class SQLGameDAO implements GameDAO {
         }
         try {
             if (game.gameName().matches("[a-zA-Z]+")) {
+                try {
+                    GameData oldGame = getGame(game.gameID());
+                } catch (DataAccessException e) {
+                    throw new DataAccessException("Error: bad request");
+                }
                 var statement = "UPDATE game_table SET whiteUsername = ?, blackUsername = ?, gameName = ?, ChessGame = ? WHERE gameID = ?";
                 try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.setInt(1, game.gameID());
                     if (game.whiteUsername() == null) {
-                        preparedStatement.setNull(2, Types.VARCHAR);
+                        preparedStatement.setNull(1, Types.VARCHAR);
                     } else {
-                        preparedStatement.setString(2, game.whiteUsername());
+                        preparedStatement.setString(1, game.whiteUsername());
                     }
                     if (game.blackUsername() == null) {
-                        preparedStatement.setNull(3, Types.VARCHAR);
+                        preparedStatement.setNull(2, Types.VARCHAR);
                     } else {
-                        preparedStatement.setString(3, game.blackUsername());
+                        preparedStatement.setString(2, game.blackUsername());
                     }
-                    preparedStatement.setString(4, game.gameName());
-                    preparedStatement.setString(5, new Gson().toJson(game.game(), ChessGame.class));
+                    preparedStatement.setString(3, game.gameName());
+                    preparedStatement.setString(4, new Gson().toJson(game.game(), ChessGame.class));
+                    preparedStatement.setInt(5, game.gameID());
 
                     preparedStatement.executeUpdate();
                 }
             } else {
-                throw new DataAccessException("Error: invalid game name");
+                System.out.println("Bad game name error");
             }
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException("Error updating game");
+        } catch (SQLException e) {
+            System.out.println("updateGame error");
         }
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         try {
             conn = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
@@ -181,7 +191,7 @@ public class SQLGameDAO implements GameDAO {
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error clearing game table");
+            System.out.println("gameClear error");
         }
     }
 }

@@ -33,7 +33,7 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void addAuthData(AuthData authData) throws DataAccessException {
+    public void addAuthData(AuthData authData) {
         try {
             conn = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
@@ -46,7 +46,7 @@ public class SQLAuthDAO implements AuthDAO {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error adding user");
+            System.out.println("addAuthDao error");
         }
     }
 
@@ -66,7 +66,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error finding user");
+            System.out.println("checkAuthData error");
         }
         throw new DataAccessException("Error: unauthorized");
     }
@@ -90,7 +90,7 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void clear() throws DataAccessException {
+    public void clear() {
         try {
             conn = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
@@ -100,7 +100,7 @@ public class SQLAuthDAO implements AuthDAO {
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error clearing account table");
+            System.out.println("authClear error");
         }
     }
 }

@@ -49,7 +49,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error finding user");
+            System.out.println("findUser error");
         }
         throw new DataAccessException("Error: user not found");
     }
@@ -73,7 +73,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     @Override
-    public void addUser(UserData user) throws DataAccessException {
+    public void addUser(UserData user) {
         try {
             conn = DatabaseManager.getConnection();
         } catch (DataAccessException e) {
@@ -88,7 +88,7 @@ public class SQLUserDAO implements UserDAO {
 
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException("Error adding user");
+                System.out.println("addUser error");
             }
         }
     }
@@ -104,7 +104,7 @@ public class SQLUserDAO implements UserDAO {
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            System.out.println("userClear error");
         }
     }
 }
