@@ -11,15 +11,33 @@ import java.sql.*;
 import java.util.HashSet;
 
 
-public class SQLGameDAO extends SQLDAO implements GameDAO {
+public class SQLGameDAO implements GameDAO {
     private Connection conn;
 
     public SQLGameDAO(Connection connection) throws DataAccessException {
         conn = connection;
+        var createGameTable = """
+                    CREATE TABLE IF NOT EXISTS game_table (
+                        gameID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                        whiteUsername VARCHAR(255),
+                        blackUsername VARCHAR(255),
+                        gameName VARCHAR(255) NOT NULL,
+                        game TEXT
+                    )""";
+        try (var createGameTableStatement = conn.prepareStatement(createGameTable)) {
+            createGameTableStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public void createGame(GameData game) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         try {
             if (game.gameName().matches("[a-zA-Z]+")) {
                 var statement = "INSERT INTO game_table (gameID, whiteUsername, blackUsername, gameName, ChessGame) VALUES (?, ?, ?, ?, ?)";
@@ -50,6 +68,11 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, " +
                 "gameName, ChessGame FROM game_table")) {
             try (var rs = preparedStatement.executeQuery()) {
@@ -68,6 +91,11 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public boolean ifGame(int gameID) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, " +
                 "blackUsername, gameName, ChessGame FROM game_table")) {
             try (var rs = preparedStatement.executeQuery()) {
@@ -85,6 +113,11 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public HashSet<GameData> getAllGames() throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         HashSet<GameData> allGames = new HashSet<>(100);
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, " +
                 "gameName, ChessGame FROM game_table")) {
@@ -104,6 +137,11 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData game) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         try {
             if (game.gameName().matches("[a-zA-Z]+")) {
                 var statement = "UPDATE game_table SET whiteUsername = ?, blackUsername = ?, gameName = ?, ChessGame = ? WHERE gameID = ?";
@@ -134,6 +172,11 @@ public class SQLGameDAO extends SQLDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         var statement = "TRUNCATE TABLE game_table";
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();

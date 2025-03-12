@@ -9,15 +9,37 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.*;
 import java.util.Objects;
 
-public class SQLUserDAO extends SQLDAO implements UserDAO {
+public class SQLUserDAO implements UserDAO {
     private Connection conn;
 
     public SQLUserDAO(Connection connection) throws DataAccessException {
         conn = connection;
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error creating database");
+        }
+        var createAccountTable = """
+                CREATE TABLE IF NOT EXISTS account_table (
+                    username VARCHAR(255) NOT NULL,
+                    password TEXT NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    authToken TEXT
+                )""";
+        try (var createAccountTableStatement = conn.prepareStatement(createAccountTable)) {
+            createAccountTableStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error creating account table");
+        }
     }
 
     @Override
     public UserData findUser(String username) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         try (var preparedStatement = conn.prepareStatement("SELECT username, password, email FROM account_table")) {
             try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
@@ -34,6 +56,11 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
 
     @Override
     public void login(UserData user) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         UserData dbUser;
         try {
             dbUser = findUser(user.username());
@@ -47,6 +74,11 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
 
     @Override
     public void addUser(UserData user) throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         if (user.username().matches("[a-zA-Z]+")) {
             var statement = "INSERT INTO account_table (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -63,11 +95,16 @@ public class SQLUserDAO extends SQLDAO implements UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
+        try {
+            conn = DatabaseManager.getConnection();
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+        }
         var statement = "TRUNCATE TABLE account_table";
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error clearing account table");
+            throw new DataAccessException(e.getMessage());
         }
     }
 }

@@ -18,7 +18,6 @@ public abstract class SQLDAO {
             throw new DataAccessException("Error creating database");
         }
         try (var conn = DatabaseManager.getConnection()) { // table initializations
-            conn.setCatalog("account_table");
             var createAccountTable = """
                     CREATE TABLE IF NOT EXISTS account_table (
                         username VARCHAR(255) NOT NULL,
