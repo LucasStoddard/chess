@@ -23,8 +23,7 @@ public class SQLUserDAO implements UserDAO {
                 CREATE TABLE IF NOT EXISTS account_table (
                     username VARCHAR(255) NOT NULL,
                     password TEXT NOT NULL,
-                    email VARCHAR(255) NOT NULL,
-                    authToken TEXT
+                    email VARCHAR(255) NOT NULL
                 )""";
         try (var createAccountTableStatement = conn.prepareStatement(createAccountTable)) {
             createAccountTableStatement.executeUpdate();

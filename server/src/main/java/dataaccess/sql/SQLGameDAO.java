@@ -44,27 +44,27 @@ public class SQLGameDAO implements GameDAO {
             System.out.println(e.getMessage());
         }
         try {
-            if (game.gameName().matches("[a-zA-Z]+")) {
-                var statement = "INSERT INTO game_table (gameID, whiteUsername, blackUsername, gameName, ChessGame) VALUES (?, ?, ?, ?, ?)";
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.setInt(1, game.gameID());
-                    if (game.whiteUsername() == null) {
-                        preparedStatement.setNull(2, Types.VARCHAR);
-                    } else {
-                        preparedStatement.setString(2, game.whiteUsername());
-                    }
-                    if (game.blackUsername() == null) {
-                        preparedStatement.setNull(3, Types.VARCHAR);
-                    } else {
-                        preparedStatement.setString(3, game.blackUsername());
-                    }
-                    preparedStatement.setString(4, game.gameName());
-                    preparedStatement.setNull(5, Types.CLOB); // it was getting mad at Types.TEXT
-
-                    preparedStatement.executeUpdate();
+            var statement = "INSERT INTO game_table (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setInt(1, game.gameID());
+                if (game.whiteUsername() == null) {
+                    preparedStatement.setNull(2, Types.VARCHAR);
+                } else {
+                    preparedStatement.setString(2, game.whiteUsername());
                 }
-            } else {
-                System.out.println("Bad name");;
+                if (game.blackUsername() == null) {
+                    preparedStatement.setNull(3, Types.VARCHAR);
+                } else {
+                    preparedStatement.setString(3, game.blackUsername());
+                }
+                preparedStatement.setString(4, game.gameName());
+                if (game.game() == null) {
+                    preparedStatement.setNull(5, Types.CLOB); // it was getting mad at Types.TEXT
+                } else {
+                    preparedStatement.setString(5, new Gson().toJson(game.game(), ChessGame.class));
+                }
+
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
             System.out.println("createGame error");;
@@ -79,7 +79,7 @@ public class SQLGameDAO implements GameDAO {
             System.out.println(e.getMessage());
         }
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, " +
-                "gameName, ChessGame FROM game_table")) {
+                "gameName, game FROM game_table")) {
             try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     if (gameID == rs.getInt("gameID")) { // these getStrings should just return null if null is there
@@ -102,7 +102,7 @@ public class SQLGameDAO implements GameDAO {
             System.out.println(e.getMessage());
         }
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, " +
-                "blackUsername, gameName, ChessGame FROM game_table")) {
+                "blackUsername, gameName, game FROM game_table")) {
             try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     if (gameID == rs.getInt("gameID")) {
@@ -111,7 +111,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("ifGame error");
+            System.out.println(e.getMessage());
         }
         return false;
     }
@@ -125,7 +125,7 @@ public class SQLGameDAO implements GameDAO {
         }
         HashSet<GameData> allGames = new HashSet<>(100);
         try (var preparedStatement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, " +
-                "gameName, ChessGame FROM game_table")) {
+                "gameName, game FROM game_table")) {
             try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     allGames.add(new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
@@ -148,32 +148,28 @@ public class SQLGameDAO implements GameDAO {
             System.out.println(e.getMessage());
         }
         try {
-            if (game.gameName().matches("[a-zA-Z]+")) {
-                try {
-                    GameData oldGame = getGame(game.gameID());
-                } catch (DataAccessException e) {
-                    throw new DataAccessException("Error: bad request");
+            try {
+                GameData oldGame = getGame(game.gameID());
+            } catch (DataAccessException e) {
+                throw new DataAccessException("Error: bad request");
+            }
+            var statement = "UPDATE game_table SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                if (game.whiteUsername() == null) {
+                    preparedStatement.setNull(1, Types.VARCHAR);
+                } else {
+                    preparedStatement.setString(1, game.whiteUsername());
                 }
-                var statement = "UPDATE game_table SET whiteUsername = ?, blackUsername = ?, gameName = ?, ChessGame = ? WHERE gameID = ?";
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    if (game.whiteUsername() == null) {
-                        preparedStatement.setNull(1, Types.VARCHAR);
-                    } else {
-                        preparedStatement.setString(1, game.whiteUsername());
-                    }
-                    if (game.blackUsername() == null) {
-                        preparedStatement.setNull(2, Types.VARCHAR);
-                    } else {
-                        preparedStatement.setString(2, game.blackUsername());
-                    }
-                    preparedStatement.setString(3, game.gameName());
-                    preparedStatement.setString(4, new Gson().toJson(game.game(), ChessGame.class));
-                    preparedStatement.setInt(5, game.gameID());
+                if (game.blackUsername() == null) {
+                    preparedStatement.setNull(2, Types.VARCHAR);
+                } else {
+                    preparedStatement.setString(2, game.blackUsername());
+                }
+                preparedStatement.setString(3, game.gameName());
+                preparedStatement.setString(4, new Gson().toJson(game.game(), ChessGame.class));
+                preparedStatement.setInt(5, game.gameID());
 
-                    preparedStatement.executeUpdate();
-                }
-            } else {
-                System.out.println("Bad game name error");
+                preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
             System.out.println("updateGame error");

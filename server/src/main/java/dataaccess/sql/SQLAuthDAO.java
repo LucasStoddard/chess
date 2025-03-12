@@ -18,17 +18,15 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (DataAccessException e) {
             throw new DataAccessException("Error creating database");
         }
-        var createAccountTable = """
-                CREATE TABLE IF NOT EXISTS account_table (
+        var createAuthTable = """
+                CREATE TABLE IF NOT EXISTS auth_table (
                     username VARCHAR(255) NOT NULL,
-                    password TEXT NOT NULL,
-                    email VARCHAR(255) NOT NULL,
-                    authToken TEXT
+                    authToken TEXT NOT NULL
                 )""";
-        try (var createAccountTableStatement = conn.prepareStatement(createAccountTable)) {
+        try (var createAccountTableStatement = conn.prepareStatement(createAuthTable)) {
             createAccountTableStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error creating account table");
+            throw new DataAccessException("Error creating auth table");
         }
     }
 
@@ -39,10 +37,10 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());
         }
-        var statement = "UPDATE account_table SET authToken = ? WHERE username = ?";
+        var statement = "INSERT INTO auth_table (username, authToken) VALUES (?, ?)";
         try (var preparedStatement = conn.prepareStatement(statement)) {
-            preparedStatement.setString(1, authData.authToken());
-            preparedStatement.setString(2, authData.username());
+            preparedStatement.setString(1, authData.username());
+            preparedStatement.setString(2, authData.authToken());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -57,7 +55,7 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());
         }
-        try (var preparedStatement = conn.prepareStatement("SELECT username, authToken FROM account_table")) {
+        try (var preparedStatement = conn.prepareStatement("SELECT username, authToken FROM auth_table")) {
             try (var rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     if (Objects.equals(authDataString, rs.getString("authToken"))) {
@@ -78,14 +76,14 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());
         }
-        var statement = "UPDATE account_table SET authToken = ? WHERE username = ?";
+        var statement = "DELETE FROM auth_table WHERE authToken = ?";
         try (var preparedStatement = conn.prepareStatement(statement)) {
-            preparedStatement.setNull(1, Types.CLOB);
-            preparedStatement.setString(2, checkAuthData(authDataString));
+            checkAuthData(authDataString);
+            preparedStatement.setString(1, authDataString);
 
             preparedStatement.executeUpdate();
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException("Error: Unauthorized");
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: unauthorized");
         }
     }
 
@@ -96,7 +94,7 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());
         }
-        var statement = "TRUNCATE TABLE account_table";
+        var statement = "TRUNCATE TABLE auth_table";
         try (var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
