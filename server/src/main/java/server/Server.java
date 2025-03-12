@@ -20,6 +20,11 @@ public class Server {
     GameHandler gameH;
 
     public Server() {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            System.out.println("Database failed to be created");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             user = new SQLUserDAO(conn);
             auth = new SQLAuthDAO(conn);

@@ -16,11 +16,6 @@ public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO(Connection connection) {
         conn = connection;
-        try {
-            DatabaseManager.createDatabase();
-        } catch (DataAccessException e) {
-            System.out.println("Error creating database");
-        }
         var createGameTable = """
                     CREATE TABLE IF NOT EXISTS game_table (
                         gameID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

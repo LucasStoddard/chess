@@ -14,11 +14,6 @@ public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO(Connection connection) throws DataAccessException {
         conn = connection;
-        try {
-            DatabaseManager.createDatabase();
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error creating database");
-        }
         var createAccountTable = """
                 CREATE TABLE IF NOT EXISTS account_table (
                     username VARCHAR(255) NOT NULL,

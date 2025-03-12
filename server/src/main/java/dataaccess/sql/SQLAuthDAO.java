@@ -13,11 +13,6 @@ public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO(Connection connection) throws DataAccessException {
         conn = connection;
-        try {
-            DatabaseManager.createDatabase();
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error creating database");
-        }
         var createAuthTable = """
                 CREATE TABLE IF NOT EXISTS auth_table (
                     username VARCHAR(255) NOT NULL,
