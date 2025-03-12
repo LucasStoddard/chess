@@ -1,4 +1,4 @@
-package service;
+package dataaccess;
 
 import dataaccess.memory.MemoryAuthDAO;
 import dataaccess.memory.MemoryGameDAO;
@@ -6,6 +6,7 @@ import dataaccess.memory.MemoryUserDAO;
 import org.junit.jupiter.api.*;
 import model.*;
 import dataaccess.*;
+import service.*;
 
 public class ServiceUnitTests {
     @Test
