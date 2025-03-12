@@ -6,6 +6,7 @@ import dataaccess.sql.SQLUserDAO;
 import org.junit.jupiter.api.*;
 import model.*;
 import service.*;
+import java.sql.*;
 
 import java.sql.SQLException;
 
@@ -32,6 +33,39 @@ public class DataAccessTests {
         auth.clear();
         user.clear();
 
+    }
+
+    @Test
+    public void testAuthInitializeNegativeSQL() {
+        Connection falseConnection = null;
+        try {
+            AuthDAO falseAuth = new SQLAuthDAO(falseConnection);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Cannot invoke"), "Message should contain 'Cannot invoke'");
+        }
+    }
+
+    @Test
+    public void testGameInitializeNegativeSQL() {
+        Connection falseConnection = null;
+        try {
+            GameDAO falseGame = new SQLGameDAO(falseConnection);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Cannot invoke"), "Message should contain 'Cannot invoke'");
+        }
+    }
+
+    @Test
+    public void testUserInitializeNegativeSQL() {
+        Connection falseConnection = null;
+        try {
+            UserDAO falseUser = new SQLUserDAO(falseConnection);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception e) {
+            Assertions.assertTrue(e.getMessage().contains("Cannot invoke"), "Message should contain 'Cannot invoke'");
+        }
     }
 
     @Test
