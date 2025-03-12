@@ -10,6 +10,10 @@ import service.*;
 import java.sql.SQLException;
 
 public class DataAccessTests {
+    GameDAO game;
+    AuthDAO auth;
+    UserDAO user;
+
     @BeforeEach
     public void setup() throws DataAccessException{
         try {
@@ -17,9 +21,6 @@ public class DataAccessTests {
         } catch (DataAccessException e) {
             System.out.println("Database failed to be created");
         }
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
         try (var conn = DatabaseManager.getConnection()) {
             game = new SQLGameDAO(conn);
             auth = new SQLAuthDAO(conn);
@@ -35,14 +36,6 @@ public class DataAccessTests {
 
     @Test
     public void testRegisterPositiveSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         AuthData authData = userS.register(registerRequest);
@@ -52,14 +45,6 @@ public class DataAccessTests {
 
     @Test
     public void testRegisterNegativeSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         userS.register(registerRequest);
@@ -73,14 +58,6 @@ public class DataAccessTests {
 
     @Test
     public void testLoginPositiveSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         UserData loginRequest = new UserData("newUser", "password123", "abc@123.org");
         userS.register(loginRequest);
@@ -93,14 +70,6 @@ public class DataAccessTests {
 
     @Test
     public void testLoginNegativeSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         userS.register(registerRequest);
@@ -115,14 +84,6 @@ public class DataAccessTests {
 
     @Test
     public void testLogoutNegativeSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         try {
             userS.logout("goobledeegook");
@@ -134,14 +95,6 @@ public class DataAccessTests {
 
     @Test
     public void testLogoutPositiveSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         AuthData authData = userS.register(registerRequest);
@@ -153,50 +106,58 @@ public class DataAccessTests {
     }
 
     @Test
-    public void testClearUserServiceSQL() throws DataAccessException {
-        UserDAO user;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            user = new SQLUserDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
+    public void testClearUserDaoSQL() throws DataAccessException {
+        try {
+            user.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException thrown");
         }
+    }
+
+    @Test
+    public void testClearAuthDaoSQL() throws DataAccessException {
+        try {
+            auth.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException thrown");
+        }
+    }
+
+    @Test
+    public void testClearGameDaoSQL() throws DataAccessException {
+        try {
+            game.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException thrown");
+        }
+    }
+
+    @Test
+    public void testClearUserServiceSQL() throws DataAccessException {
         UserService userS = new UserService(user, auth);
-        userS.clear();
+        try {
+            userS.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException thrown");
+        }
     }
 
     @Test
     public void testClearGameServiceSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         GameService gameS = new GameService(game, auth);
-        gameS.clear();
+        try {
+            gameS.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException thrown");
+        }
     }
 
     @Test
     public void testListPositiveSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-            user = new SQLUserDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         GameService gameS = new GameService(game, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         AuthData authData = userS.register(registerRequest);
-
         try {
             gameS.list(authData.authToken());
         } catch (DataAccessException e) {
@@ -206,16 +167,7 @@ public class DataAccessTests {
 
     @Test
     public void testListNegativeSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         GameService gameS = new GameService(game, auth);
-
         try {
             gameS.list("garbledeegook");
             Assertions.fail("Expected DataAccessException thrown");
@@ -226,21 +178,10 @@ public class DataAccessTests {
 
     @Test
     public void testCreatePositiveSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-            user = new SQLUserDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         GameService gameS = new GameService(game, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
         AuthData authData = userS.register(registerRequest);
-
         try {
             gameS.create(authData.authToken(), "newGame");
         } catch (DataAccessException e) {
@@ -250,16 +191,6 @@ public class DataAccessTests {
 
     @Test
     public void testCreateNegativeSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-            user = new SQLUserDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         GameService gameS = new GameService(game, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
@@ -275,16 +206,6 @@ public class DataAccessTests {
 
     @Test
     public void testJoinPositiveSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-            user = new SQLUserDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         GameService gameS = new GameService(game, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
@@ -300,16 +221,6 @@ public class DataAccessTests {
 
     @Test
     public void testJoinNegativeSQL() throws DataAccessException {
-        GameDAO game;
-        AuthDAO auth;
-        UserDAO user;
-        try (var conn = DatabaseManager.getConnection()) {
-            game = new SQLGameDAO(conn);
-            auth = new SQLAuthDAO(conn);
-            user = new SQLUserDAO(conn);
-        } catch (DataAccessException | SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
         UserService userS = new UserService(user, auth);
         GameService gameS = new GameService(game, auth);
         UserData registerRequest = new UserData("newUser", "password123", "abc@123.org");
