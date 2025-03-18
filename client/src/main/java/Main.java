@@ -1,5 +1,6 @@
 import chess.*;
 
+
 public class Main {
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
@@ -8,6 +9,7 @@ public class Main {
 }
 
 // TODO: Make prelogin Repl, the steps I assume we must accomplish (in no order) are:
+//      0. Create the server facade
 //      1. Code the eval loop
 //      2. Code the helper functions which give responses according to errors
 //      3. Code the help part
