@@ -4,20 +4,14 @@ import model.GameData;
 import java.io.*;
 import java.net.*;
 import java.util.HashSet;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import model.UserData;
 import ui.ResponseException;
 
 public class ServerFacade {
     private String url = "http://localhost:8080";
-
-    //TODO: I have two options for the request stuff:
-    //  1. Change all my GameService and UserService calls to use objects such as RegisterRequest,
-    //     This would additionally require changing all of my Service Unit Tests and possibly cause more errors
-    //  2. Use map.of("gameID", gameID) then Gson.toJson all that for the bodies, and for the
-    //     headers use http.writeRequestProperty("authorization", authToken) (this may require tweaking the makeRequest method)
-    //     To be honest this seems like it would be way better, make sure to look at the sequence diagram and server facade
-    //     help to do this.
 
     public ServerFacade() {
     }
@@ -28,41 +22,54 @@ public class ServerFacade {
 
     public AuthData register(UserData registerRequest) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, registerRequest, AuthData.class);
+        return this.makeRequest("POST", path, registerRequest, null, AuthData.class);
     }
 
     public AuthData login(UserData loginRequest) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, loginRequest, AuthData.class);
+        var body = Map.of("username", loginRequest.username(), "password", loginRequest.password());
+        return this.makeRequest("POST", path, body, null, AuthData.class);
     }
 
     public void logout(String logoutRequest) throws ResponseException {
         var path = "/session";
-        this.makeRequest("DELETE", path, logoutRequest, AuthData.class);
+        this.makeRequest("DELETE", path, null, logoutRequest, null);
     }
 
     public HashSet<GameData> list(String authDataString) throws ResponseException {
         var path = "/game";
-        record gameListResponse(HashSet<GameData> allGames) {
+        record gameListResponse(HashSet<GameData> games) {
         }
-        var response = this.makeRequest("GET", path, authDataString, gameListResponse.class);
-        return response.allGames();
+        var response = this.makeRequest("GET", path, null, authDataString, gameListResponse.class);
+        return response.games();
     }
 
     public GameData create(String authDataString, String gameName) throws ResponseException {
-
+        var path = "/game";
+        var body = Map.of("gameName", gameName);
+        return this.makeRequest("POST", path, body, authDataString, GameData.class);
     }
 
     public void join(String authDataString, int gameID, String teamColor) throws ResponseException {
-
+        var path = "/game";
+        var body = Map.of("playerColor", teamColor, "gameID", gameID);
+        this.makeRequest("PUT", path, body, authDataString, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public void clear() throws ResponseException {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null, null);
+    }
+
+    private <T> T makeRequest(String method, String path, Object request, String authorizationToken, Class<T> responseClass) throws ResponseException {
         try {
             URL requestURL = (new URI(url + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) requestURL.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            if (authorizationToken != null) {
+                http.addRequestProperty("authorization", authorizationToken);
+            }
 
             writeBody(request, http);
             http.connect();
