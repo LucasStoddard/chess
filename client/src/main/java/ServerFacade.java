@@ -11,6 +11,14 @@ import ui.ResponseException;
 public class ServerFacade {
     private String url = "http://localhost:8080";
 
+    //TODO: I have two options for the request stuff:
+    //  1. Change all my GameService and UserService calls to use objects such as RegisterRequest,
+    //     This would additionally require changing all of my Service Unit Tests and possibly cause more errors
+    //  2. Use map.of("gameID", gameID) then Gson.toJson all that for the bodies, and for the
+    //     headers use http.writeRequestProperty("authorization", authToken) (this may require tweaking the makeRequest method)
+    //     To be honest this seems like it would be way better, make sure to look at the sequence diagram and server facade
+    //     help to do this.
+
     public ServerFacade() {
     }
 
@@ -42,8 +50,7 @@ public class ServerFacade {
     }
 
     public GameData create(String authDataString, String gameName) throws ResponseException {
-        var path = "/game";
-        this.makeRequest("POST", path, logoutRequest, AuthData.class);
+
     }
 
     public void join(String authDataString, int gameID, String teamColor) throws ResponseException {
