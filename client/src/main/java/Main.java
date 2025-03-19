@@ -9,7 +9,8 @@ public class Main {
 }
 
 // TODO: Make prelogin Repl, the steps I assume we must accomplish (in no order) are:
-//      0. Create the server facade
+//      0. Create the server facade (DONE)
+//      0.5. Rather than 3 repl files, use 1 repl and 3 clients (DONE)
 //      1. Code the eval loop
 //      2. Code the helper functions which give responses according to errors
 //      3. Code the help part
