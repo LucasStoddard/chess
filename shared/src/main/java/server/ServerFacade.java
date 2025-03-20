@@ -1,3 +1,5 @@
+package server;
+
 import model.AuthData;
 import model.GameData;
 
@@ -8,7 +10,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import model.UserData;
-import ui.ResponseException;
+import model.ResponseException;
 
 public class ServerFacade {
     private String url = "http://localhost:8080";
