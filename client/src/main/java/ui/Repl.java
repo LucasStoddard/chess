@@ -18,7 +18,7 @@ public class Repl{
 
     public void run() {
         System.out.println(WHITE_KING + " Welcome to Chess, a game that exists. Sign in to start. " + WHITE_QUEEN);
-        System.out.print(mainClient.help());
+        System.out.print(loginClient.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
