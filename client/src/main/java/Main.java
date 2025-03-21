@@ -1,10 +1,19 @@
 import chess.*;
 
+import static ui.EscapeSequences.*;
+
 
 public class Main {
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
+        String uhh = (SET_TEXT_COLOR_CYAN + "register <USERNAME> <PASSWORD> <EMAIL>" +
+                SET_TEXT_COLOR_DARK_GREY + " - to create an account \n" +
+                SET_TEXT_COLOR_CYAN + "login <USERNAME> <PASSWORD>" +
+                SET_TEXT_COLOR_DARK_GREY + " - to login to an account \n" +
+                SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_DARK_GREY + " - yeah you know what this does \n" +
+                SET_TEXT_COLOR_DARK_GREY + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+        System.out.println(uhh);
     }
 }
 

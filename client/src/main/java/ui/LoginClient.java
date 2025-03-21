@@ -18,7 +18,7 @@ public class LoginClient {
     }
 
     public String eval(String input) {
-        try {
+//        try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -28,9 +28,9 @@ public class LoginClient {
                 case "register" -> register(params);
                 default -> help();
             };
-        } catch (ResponseException e) {
-            return e.getMessage();
-        }
+//        } catch (ResponseException e) {
+//            return e.getMessage();
+//        }
     }
 
     public String help() {
@@ -40,5 +40,17 @@ public class LoginClient {
                 SET_TEXT_COLOR_DARK_GREY + " - to login to an account \n" +
                 SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_DARK_GREY + " - yeah you know what this does \n" +
                 SET_TEXT_COLOR_DARK_GREY + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+    }
+
+    public String quit() {
+        return "okay";
+    }
+
+    public String login(String... params) {
+        return "okay";
+    }
+
+    public String register(String... params) {
+        return "okay";
     }
 }
