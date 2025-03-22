@@ -6,14 +6,12 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl{
-    private GameClient gameClient;
     private LoginClient loginClient;
     private MainClient mainClient;
     private boolean loggedIn;
     private boolean gameMode;
 
     public Repl(String serverUrl) {
-        gameClient = new GameClient(serverUrl, this);
         loginClient = new LoginClient(serverUrl, this);
         mainClient = new MainClient(serverUrl, this);
         loggedIn = false;
@@ -27,7 +25,11 @@ public class Repl{
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
-        // This will go loginClient -> mainClient <-> gameClient
+        // This will go loginClient <-> mainClient <-> gameClient
+
+        // I missunderstood this, login will be to log in, main is just for the rest of the server
+        // but gameclient will handle printing the game and all that jazz
+
         // This run loop will need to be adjusted so that it appropriately changes clients
         // This would probably involve checking the result and if it involves logging in, game options, or logging out
         // it will transition which client is using eval on the lines that are scanned in.
