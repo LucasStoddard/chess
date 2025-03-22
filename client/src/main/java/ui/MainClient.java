@@ -22,10 +22,10 @@ public class MainClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "logout" -> quit();
+                case "logout" -> logout(); // OKAY logout is not possible without websocket so just quit here
 //                case "create" -> create(params);
 //                case "list" -> list(params);
-//                case "play" -> play(params);
+//                case "join" -> play(params);
 //                case "observe" -> observe(params);
                 default -> help();
             };
@@ -35,13 +35,17 @@ public class MainClient {
     }
 
     public String help() { // It required a lot of testing but this should work
-        return (SET_TEXT_COLOR_CYAN + "register <USERNAME> <PASSWORD> <EMAIL>" + SET_TEXT_COLOR_DARK_GREY + " - to create an account \n" +
-                SET_TEXT_COLOR_CYAN + "login <USERNAME> <PASSWORD>" +  SET_TEXT_COLOR_DARK_GREY + " - to login to an account \n" +
-                SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_DARK_GREY + " - yeah you know what this does \n" +
-                SET_TEXT_COLOR_DARK_GREY + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+        return (SET_TEXT_COLOR_CYAN + "logout" + SET_TEXT_COLOR_DARK_GREY + " - to log out \n" +
+                SET_TEXT_COLOR_CYAN + "create <NAME>" +  SET_TEXT_COLOR_DARK_GREY + " - to create a game \n" +
+                SET_TEXT_COLOR_CYAN + "list" + SET_TEXT_COLOR_DARK_GREY + " - to list all the games \n" +
+                SET_TEXT_COLOR_CYAN + "join <ID> <WHITE/BLACK>" + SET_TEXT_COLOR_DARK_GREY + " - to join a game by ID on WHITE or BLACK \n" +
+                SET_TEXT_COLOR_CYAN + "observe <ID>" + SET_TEXT_COLOR_DARK_GREY + " - to watch a game by ID \n" +
+                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
     }
 
-    public String quit() {
-        return "quit";
+    public String logout() {
+        return "Successfully logged out";
     }
+
+
 }

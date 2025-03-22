@@ -36,7 +36,7 @@ public class LoginClient {
         return (SET_TEXT_COLOR_CYAN + "register <USERNAME> <PASSWORD> <EMAIL>" + SET_TEXT_COLOR_DARK_GREY + " - to create an account \n" +
                 SET_TEXT_COLOR_CYAN + "login <USERNAME> <PASSWORD>" +  SET_TEXT_COLOR_DARK_GREY + " - to login to an account \n" +
                 SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_DARK_GREY + " - yeah you know what this does \n" +
-                SET_TEXT_COLOR_DARK_GREY + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
     }
 
     public String quit() {
