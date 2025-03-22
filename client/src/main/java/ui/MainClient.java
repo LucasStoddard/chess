@@ -6,14 +6,13 @@ import server.ServerFacade;
 
 import java.util.Arrays;
 
-import static ui.EscapeSequences.SET_TEXT_COLOR_CYAN;
-import static ui.EscapeSequences.SET_TEXT_COLOR_DARK_GREY;
+import static ui.EscapeSequences.*;
 
 public class MainClient {
     private final ServerFacade serverFacade;
 
-    public MainClient(String serverUrl) {
-        serverFacade = new ServerFacade(serverUrl);
+    public MainClient(ServerFacade serverF) {
+        serverFacade = serverF;
     }
 
     public String eval(String input) {
@@ -47,5 +46,7 @@ public class MainClient {
         return "Successfully logged out";
     }
 
+    public String create(String... params) { // if errors are here it may be authToken handling
 
+    }
 }

@@ -47,6 +47,7 @@ public class LoginClient {
         if (params.length == 2) {
             try {
                 serverFacade.login(new UserData(params[0], params[1], null));
+
                 return String.format("Welcome back, %s.", params[0]);
             } catch (ResponseException e) {
                 throw new ResponseException(500, e.getMessage());
@@ -71,5 +72,9 @@ public class LoginClient {
         } else {
             throw new ResponseException(400, "Too few arguments given");
         }
+    }
+
+    public ServerFacade getServerFacade() {
+        return serverFacade;
     }
 }

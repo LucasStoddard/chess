@@ -14,6 +14,7 @@ import model.ResponseException;
 
 public class ServerFacade {
     private String url = "http://localhost:8080";
+    private String authToken;
 
     public ServerFacade() {
     }
@@ -30,11 +31,14 @@ public class ServerFacade {
     public AuthData login(UserData loginRequest) throws ResponseException {
         var path = "/session";
         var body = Map.of("username", loginRequest.username(), "password", loginRequest.password());
-        return this.makeRequest("POST", path, body, null, AuthData.class);
+        AuthData auth = this.makeRequest("POST", path, body, null, AuthData.class);
+        authToken = auth.authToken();
+        return auth;
     }
 
     public void logout(String logoutRequest) throws ResponseException {
         var path = "/session";
+        authToken = null;
         this.makeRequest("DELETE", path, null, logoutRequest, null);
     }
 
@@ -116,5 +120,7 @@ public class ServerFacade {
         return (status / 100 == 2);
     }
 
-
+    public String getAuth() {
+        return authToken;
+    }
 }

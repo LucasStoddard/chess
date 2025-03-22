@@ -12,8 +12,8 @@ public class Repl{
     private boolean gameMode;
 
     public Repl(String serverUrl) {
-        loginClient = new LoginClient(serverUrl, this);
-        mainClient = new MainClient(serverUrl, this);
+        loginClient = new LoginClient(serverUrl);
+        mainClient = new MainClient(loginClient.getServerFacade());
         loggedIn = false;
         gameMode = false;
     }
