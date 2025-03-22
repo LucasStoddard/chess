@@ -2,7 +2,6 @@ package ui;
 
 import model.*;
 import server.ServerFacade;
-import ui.EscapeSequences.*;
 
 import java.util.Arrays;
 
@@ -47,7 +46,6 @@ public class LoginClient {
         if (params.length == 2) {
             try {
                 serverFacade.login(new UserData(params[0], params[1], null));
-
                 return String.format("Welcome back, %s.", params[0]);
             } catch (ResponseException e) {
                 throw new ResponseException(500, e.getMessage());
