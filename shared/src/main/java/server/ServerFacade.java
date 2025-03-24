@@ -25,7 +25,9 @@ public class ServerFacade {
 
     public AuthData register(UserData registerRequest) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, registerRequest, null, AuthData.class);
+        AuthData auth = this.makeRequest("POST", path, registerRequest, null, AuthData.class);
+        authToken = auth.authToken();
+        return auth;
     }
 
     public AuthData login(UserData loginRequest) throws ResponseException {
@@ -58,7 +60,7 @@ public class ServerFacade {
 
     public void join(String authDataString, int gameID, String teamColor) throws ResponseException {
         var path = "/game";
-        var body = Map.of("playerColor", teamColor, "gameID", gameID);
+        var body = Map.of("gameID", gameID, "playerColor", teamColor);
         this.makeRequest("PUT", path, body, authDataString, null);
     }
 
@@ -73,6 +75,7 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) requestURL.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
             if (authorizationToken != null) {
                 http.addRequestProperty("authorization", authorizationToken);
             }

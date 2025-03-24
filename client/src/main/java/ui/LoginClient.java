@@ -11,8 +11,8 @@ public class LoginClient {
     //private final String url;
     private final ServerFacade serverFacade;
 
-    public LoginClient(String serverUrl) {
-        serverFacade = new ServerFacade(serverUrl);
+    public LoginClient(ServerFacade serverF) {
+        serverFacade = serverF;
     }
 
     public String eval(String input) {
@@ -32,10 +32,10 @@ public class LoginClient {
     }
 
     public String help() { // It required a lot of testing but this should work
-        return (SET_TEXT_COLOR_CYAN + "register <USERNAME> <PASSWORD> <EMAIL>" + SET_TEXT_COLOR_DARK_GREY + " - to create an account \n" +
-                SET_TEXT_COLOR_CYAN + "login <USERNAME> <PASSWORD>" +  SET_TEXT_COLOR_DARK_GREY + " - to login to an account \n" +
-                SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_DARK_GREY + " - yeah you know what this does \n" +
-                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+        return (SET_TEXT_COLOR_CYAN + "register <USERNAME> <PASSWORD> <EMAIL>" + SET_TEXT_COLOR_WHITE + " - to create an account \n" +
+                SET_TEXT_COLOR_CYAN + "login <USERNAME> <PASSWORD>" +  SET_TEXT_COLOR_WHITE + " - to login to an account \n" +
+                SET_TEXT_COLOR_CYAN + "quit" + SET_TEXT_COLOR_WHITE + " - yeah you know what this does \n" +
+                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_WHITE + " - get some help");
     }
 
     public String quit() {

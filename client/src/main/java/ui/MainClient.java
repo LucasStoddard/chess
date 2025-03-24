@@ -2,6 +2,8 @@ package ui;
 
 import model.*;
 import server.ServerFacade;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Map;
@@ -9,12 +11,13 @@ import java.util.Map;
 import static ui.EscapeSequences.*;
 
 public class MainClient {
-
     private final ServerFacade serverFacade;
-    private Map<Integer, Integer> fakeToRealGameID;
+    private Map<Integer, Integer> fakeToRealGameID = new HashMap<>();
+    private final GameUI gameui;
 
     public MainClient(ServerFacade serverF) {
         serverFacade = serverF;
+        gameui = new GameUI();
     }
 
     public String eval(String input) {
@@ -23,7 +26,7 @@ public class MainClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "logout" -> logout(); // okay
+                case "logout" -> logout();
                 case "create" -> create(params);
                 case "list" -> list();
                 case "join" -> join(params);
@@ -36,12 +39,12 @@ public class MainClient {
     }
 
     public String help() { // It required a lot of testing but this should work
-        return (SET_TEXT_COLOR_CYAN + "logout" + SET_TEXT_COLOR_DARK_GREY + " - to log out \n" +
-                SET_TEXT_COLOR_CYAN + "create <NAME>" +  SET_TEXT_COLOR_DARK_GREY + " - to create a game (this does not join you to the game)\n" +
-                SET_TEXT_COLOR_CYAN + "list" + SET_TEXT_COLOR_DARK_GREY + " - to list all the games \n" +
-                SET_TEXT_COLOR_CYAN + "join <ID> <WHITE/BLACK>" + SET_TEXT_COLOR_DARK_GREY + " - to join a game by ID on WHITE or BLACK \n" +
-                SET_TEXT_COLOR_CYAN + "observe <ID>" + SET_TEXT_COLOR_DARK_GREY + " - to watch a game by ID \n" +
-                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_DARK_GREY + " - get some help \n");
+        return (SET_TEXT_COLOR_CYAN + "logout" + SET_TEXT_COLOR_WHITE + " - to log out \n" +
+                SET_TEXT_COLOR_CYAN + "create <NAME>" +  SET_TEXT_COLOR_WHITE + " - to create a game (this does not join you to the game)\n" +
+                SET_TEXT_COLOR_CYAN + "list" + SET_TEXT_COLOR_WHITE + " - to list all the games \n" +
+                SET_TEXT_COLOR_CYAN + "join <ID> <WHITE/BLACK>" + SET_TEXT_COLOR_WHITE + " - to join a game by ID on WHITE or BLACK \n" +
+                SET_TEXT_COLOR_CYAN + "observe <ID>" + SET_TEXT_COLOR_WHITE + " - to watch a game by ID \n" +
+                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_WHITE + " - get some help");
     }
 
     public String logout() throws ResponseException {
@@ -54,14 +57,14 @@ public class MainClient {
     }
 
     public String create(String... params) throws ResponseException { // if errors are here it may be authToken handling
-        if (params.length == 2) {
+        if (params.length == 1) {
             try {
                 GameData game = serverFacade.create(serverFacade.getAuth(), params[0]);
-                return String.format("Game named \"%s\" successfully created", game.gameName());
+                return "Game successfully created";
             } catch (ResponseException e) {
                 throw new ResponseException(500, e.getMessage());
             }
-        } else if (params.length > 2) {
+        } else if (params.length > 1) {
             throw new ResponseException(400, "Too many arguments given");
         } else {
             throw new ResponseException(400, "Too few arguments given");
@@ -81,12 +84,15 @@ public class MainClient {
             HashSet<GameData> allGames = serverFacade.list(serverFacade.getAuth());
             String allGamesPrintable = "";
             int i = 1;
-            fakeToRealGameID.clear();
+            if (fakeToRealGameID != null) {
+                fakeToRealGameID.clear();
+            }
             for (GameData game : allGames) {
                 fakeToRealGameID.put(i, game.gameID());
                 allGamesPrintable += (i + " " + game.gameName());
                 allGamesPrintable += (" White Player: " + listPlayerHelper(game.whiteUsername()));
                 allGamesPrintable += (" Black Player: " + listPlayerHelper(game.blackUsername()) + " \n");
+                i++;
             }
             return allGamesPrintable;
         } catch (ResponseException e) {
@@ -95,10 +101,11 @@ public class MainClient {
     }
 
     public String join(String... params) throws ResponseException {
-        if (params.length == 2) { // color error handling handled by our DAO
+        if (params.length == 2) {
             try {
-                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(Integer.parseInt(params[0])), params[1]);
-                return String.format("Game %s successfully found on %s team, joining...", params[0], params[1]);
+                System.out.println(params[1]);
+                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(Integer.parseInt(params[0])), params[1].toUpperCase());
+                return gameString();
             } catch (ResponseException e) {
                 throw new ResponseException(500, e.getMessage());
             }
@@ -112,7 +119,7 @@ public class MainClient {
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
             if (fakeToRealGameID.containsKey(Integer.parseInt(params[0]))) {
-                return String.format("Game \"%s\" successfully found, observing...", params[0]);
+                return gameString();
             } else {
                 throw new ResponseException(400, "Game not found");
             }
@@ -121,5 +128,9 @@ public class MainClient {
         } else {
             throw new ResponseException(400, "Too few arguments given");
         }
+    }
+
+    public String gameString() {
+        return gameui.getGameStringBothSides();
     }
 }
