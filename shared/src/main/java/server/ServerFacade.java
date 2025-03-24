@@ -46,9 +46,9 @@ public class ServerFacade {
 
     public HashSet<GameData> list(String authDataString) throws ResponseException {
         var path = "/game";
-        record gameListResponse(HashSet<GameData> games) {
+        record GameListResponse(HashSet<GameData> games) {
         }
-        var response = this.makeRequest("GET", path, null, authDataString, gameListResponse.class);
+        var response = this.makeRequest("GET", path, null, authDataString, GameListResponse.class);
         return response.games();
     }
 
@@ -69,7 +69,8 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, String authorizationToken, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request,
+                              String authorizationToken, Class<T> responseClass) throws ResponseException {
         try {
             URL requestURL = (new URI(url + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) requestURL.openConnection();

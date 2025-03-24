@@ -16,4 +16,4 @@ public class ClientMain {
     }
 }
 
-// TODO: Error message conversion (DONE), ServerFacadeTests (DONE), Code Style, Pass off
+// Error message conversion (DONE), ServerFacadeTests (DONE), Code Style (DONE), Pass off
