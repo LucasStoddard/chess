@@ -44,6 +44,7 @@ public class MainClient {
     public String logout() throws ResponseException {
         try {
             serverFacade.logout(serverFacade.getAuth());
+            return "Successfully logged out";
         } catch (ResponseException e) {
             throw new ResponseException(500, e.getMessage());
         }
