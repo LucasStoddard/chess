@@ -23,8 +23,8 @@ public class MainClient {
                 case "logout" -> logout(); // okay
                 case "create" -> create(params);
                 case "list" -> list();
-//                case "join" -> play(params);
-//                case "observe" -> observe(params);
+                case "join" -> join(params);
+                case "observe" -> observe(params);
                 default -> help();
             };
         } catch (ResponseException e) {
@@ -67,7 +67,7 @@ public class MainClient {
 
     public String listPlayerHelper(String playerName) {
         if (playerName == null) {
-            return "no player";
+            return "<empty>";
         } else {
             return "playerName";
         }
@@ -86,6 +86,31 @@ public class MainClient {
             return allGamesPrintable;
         } catch (ResponseException e) {
             throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public int getGameIDByName(String name) throws ResponseException {
+        HashSet<GameData> allGames = serverFacade.list(serverFacade.getAuth());
+        for (GameData eachGame : allGames) {
+            if (eachGame.gameName().equals(name)) {
+                return eachGame.gameID();
+            }
+        }
+        throw new ResponseException(400, String.format("Game named \"%s\" not found", name));
+    }
+
+    public String join(String... params) throws ResponseException {
+        if (params.length == 2) { // color error handling handled by our DAO
+            try {
+                serverFacade.join(serverFacade.getAuth(), getGameIDByName(params[0]), params[1]);
+                return String.format("Game \"%s\" successfully joined on \"%s\"", params[0], params[1]);
+            } catch (ResponseException e) {
+                throw new ResponseException(500, e.getMessage());
+            }
+        } else if (params.length > 2) {
+            throw new ResponseException(400, "Too many arguments given");
+        } else {
+            throw new ResponseException(400, "Too few arguments given");
         }
     }
 }
