@@ -31,7 +31,7 @@ public class GameUI {
 
     private String firstRow(boolean isReversed) {
         StringBuilder boardString = new StringBuilder();
-        boardString.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE);
+        boardString.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_MAGENTA);
         if (isReversed) {
             boardString.append("    a  b  c  d  e  f  g  h    ");
         } else {

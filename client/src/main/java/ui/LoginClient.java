@@ -8,7 +8,6 @@ import java.util.Arrays;
 import static ui.EscapeSequences.*;
 
 public class LoginClient {
-    //private final String url;
     private final ServerFacade serverFacade;
 
     public LoginClient(ServerFacade serverF) {
@@ -24,6 +23,7 @@ public class LoginClient {
                 case "quit" -> quit();
                 case "login" -> login(params);
                 case "register" -> register(params);
+                case "clear" -> clear();
                 default -> help();
             };
         } catch (ResponseException e) {
@@ -39,7 +39,7 @@ public class LoginClient {
     }
 
     public String quit() {
-        return "quit";
+        return "Quitting";
     }
 
     public String login(String... params) throws ResponseException {
@@ -48,12 +48,12 @@ public class LoginClient {
                 serverFacade.login(new UserData(params[0], params[1], null));
                 return String.format("Welcome back, %s.", params[0]);
             } catch (ResponseException e) {
-                throw new ResponseException(500, e.getMessage());
+                throw new ResponseException(500, "Error: Incorrect Username or Password");
             }
         } else if (params.length > 2) {
-            throw new ResponseException(400, "Too many arguments given");
+            throw new ResponseException(400, "Error: Too many arguments given");
         } else {
-            throw new ResponseException(400, "Too few arguments given");
+            throw new ResponseException(400, "Error: Too few arguments given");
         }
     }
 
@@ -63,13 +63,22 @@ public class LoginClient {
                 serverFacade.register(new UserData(params[0], params[1], params [2]));
                 return "Welcome to Chess, a newfangled game.";
             } catch (ResponseException e) {
-                throw new ResponseException(500, e.getMessage());
+                throw new ResponseException(500, "Error: username already taken");
             }
         } else if (params.length > 3) {
-            throw new ResponseException(400, "Too many arguments given");
+            throw new ResponseException(400, "Error: Too many arguments given");
         } else {
-            throw new ResponseException(400, "Too few arguments given");
+            throw new ResponseException(400, "Error: Too few arguments given");
         }
+    }
+
+    public String clear() { // This is just for debugging
+        try {
+            serverFacade.clear();
+        } catch (ResponseException e) {
+            return "Not cleared";
+        }
+        return "Cleared";
     }
 
     public ServerFacade getServerFacade() {

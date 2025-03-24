@@ -37,7 +37,7 @@ public class GameHandler { // This is where (de)serialization happens
         String authDataString = req.headers("authorization");
         record GameNameRequest(String gameName) {}
         GameNameRequest gameName = new Gson().fromJson(req.body(), GameNameRequest.class);
-        if (authDataString == null || gameName.gameName() == null) {
+        if (authDataString == null || gameName == null || gameName.gameName() == null) {
             resp.status(400);
             return "{ \"message\": \"Error: bad request\" }";
             // throw new DataAccessException("Error: bad request");

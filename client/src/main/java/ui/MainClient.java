@@ -52,7 +52,7 @@ public class MainClient {
             serverFacade.logout(serverFacade.getAuth());
             return "Successfully logged out";
         } catch (ResponseException e) {
-            throw new ResponseException(500, e.getMessage());
+            throw new ResponseException(500, "Error: You are not authorized to do that");
         }
     }
 
@@ -62,12 +62,12 @@ public class MainClient {
                 GameData game = serverFacade.create(serverFacade.getAuth(), params[0]);
                 return "Game successfully created";
             } catch (ResponseException e) {
-                throw new ResponseException(500, e.getMessage());
+                throw new ResponseException(500, "Error: You are not authorized to do that");
             }
         } else if (params.length > 1) {
-            throw new ResponseException(400, "Too many arguments given");
+            throw new ResponseException(400, "Error: Too many arguments given");
         } else {
-            throw new ResponseException(400, "Too few arguments given");
+            throw new ResponseException(400, "Error: Too few arguments given");
         }
     }
 
@@ -75,7 +75,7 @@ public class MainClient {
         if (playerName == null) {
             return "<empty>";
         } else {
-            return "playerName";
+            return playerName;
         }
     }
 
@@ -86,6 +86,9 @@ public class MainClient {
             int i = 1;
             if (fakeToRealGameID != null) {
                 fakeToRealGameID.clear();
+            }
+            if (allGames.isEmpty()) {
+                return "No games are available at the moment \n";
             }
             for (GameData game : allGames) {
                 fakeToRealGameID.put(i, game.gameID());
@@ -100,33 +103,55 @@ public class MainClient {
         }
     }
 
+    public Integer joinFilter(String gameID) throws ResponseException {
+        Integer gameIdInt;
+        try {
+            gameIdInt = Integer.parseInt(gameID);
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: The game id must be a number");
+        }
+        if (fakeToRealGameID.containsKey(gameIdInt)) {
+            return gameIdInt;
+        } else {
+            throw new ResponseException(500, "Error: A game of that ID does not exist");
+        }
+    }
+
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
             try {
-                System.out.println(params[1]);
-                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(Integer.parseInt(params[0])), params[1].toUpperCase());
+                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])), params[1].toUpperCase());
                 return gameString();
             } catch (ResponseException e) {
-                throw new ResponseException(500, e.getMessage());
+                if (e.getMessage().contains("400")) {
+                    throw new ResponseException(500, "Error: Invalid team color");
+                } else if (e.getMessage().contains("401") | e.getMessage().contains("403")) {
+                    throw new ResponseException(500, "Error: That team is already taken");
+                } else if (e.getMessage().contains("game id")) {
+                    throw new ResponseException(500, e.getMessage());
+                } else {
+                    throw new ResponseException(500, "Error: A game of that ID does not exist");
+                }
             }
         } else if (params.length > 2) {
-            throw new ResponseException(400, "Too many arguments given");
+            throw new ResponseException(400, "Error: Too many arguments given");
         } else {
-            throw new ResponseException(400, "Too few arguments given");
+            throw new ResponseException(400, "Error: Too few arguments given");
         }
     }
 
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
-            if (fakeToRealGameID.containsKey(Integer.parseInt(params[0]))) {
+            try {
+                joinFilter(params[0]); // Store this value in the later phases
                 return gameString();
-            } else {
-                throw new ResponseException(400, "Game not found");
+            } catch (Exception e) {
+                throw new ResponseException(400, e.getMessage());
             }
         } else if (params.length > 2) {
-            throw new ResponseException(400, "Too many arguments given");
+            throw new ResponseException(400, "Error: Too many arguments given");
         } else {
-            throw new ResponseException(400, "Too few arguments given");
+            throw new ResponseException(400, "Error: Too few arguments given");
         }
     }
 
