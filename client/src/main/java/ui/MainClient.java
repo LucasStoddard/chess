@@ -4,11 +4,14 @@ import model.*;
 import server.ServerFacade;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Map;
 
 import static ui.EscapeSequences.*;
 
 public class MainClient {
+
     private final ServerFacade serverFacade;
+    private Map<Integer, Integer> fakeToRealGameID;
 
     public MainClient(ServerFacade serverF) {
         serverFacade = serverF;
@@ -78,7 +81,9 @@ public class MainClient {
             HashSet<GameData> allGames = serverFacade.list(serverFacade.getAuth());
             String allGamesPrintable = "";
             int i = 1;
+            fakeToRealGameID.clear();
             for (GameData game : allGames) {
+                fakeToRealGameID.put(i, game.gameID());
                 allGamesPrintable += (i + " " + game.gameName());
                 allGamesPrintable += (" White Player: " + listPlayerHelper(game.whiteUsername()));
                 allGamesPrintable += (" Black Player: " + listPlayerHelper(game.blackUsername()) + " \n");
@@ -89,23 +94,27 @@ public class MainClient {
         }
     }
 
-    public int getGameIDByName(String name) throws ResponseException {
-        HashSet<GameData> allGames = serverFacade.list(serverFacade.getAuth());
-        for (GameData eachGame : allGames) {
-            if (eachGame.gameName().equals(name)) {
-                return eachGame.gameID();
-            }
-        }
-        throw new ResponseException(400, String.format("Game named \"%s\" not found", name));
-    }
-
     public String join(String... params) throws ResponseException {
         if (params.length == 2) { // color error handling handled by our DAO
             try {
-                serverFacade.join(serverFacade.getAuth(), getGameIDByName(params[0]), params[1]);
-                return String.format("Game \"%s\" successfully joined on \"%s\"", params[0], params[1]);
+                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(Integer.parseInt(params[0])), params[1]);
+                return String.format("Game %s successfully found on %s team, joining...", params[0], params[1]);
             } catch (ResponseException e) {
                 throw new ResponseException(500, e.getMessage());
+            }
+        } else if (params.length > 2) {
+            throw new ResponseException(400, "Too many arguments given");
+        } else {
+            throw new ResponseException(400, "Too few arguments given");
+        }
+    }
+
+    public String observe(String... params) throws ResponseException {
+        if (params.length == 1) {
+            if (fakeToRealGameID.containsKey(Integer.parseInt(params[0]))) {
+                return String.format("Game \"%s\" successfully found, observing...", params[0]);
+            } else {
+                throw new ResponseException(400, "Game not found");
             }
         } else if (params.length > 2) {
             throw new ResponseException(400, "Too many arguments given");
