@@ -14,6 +14,7 @@ public class Repl {
     public Repl(ServerFacade serverFacade) {
         loginClient = new LoginClient(serverFacade);
         mainClient = new MainClient(serverFacade);
+        gameClient = new GameClient(serverFacade);
         loggedIn = false;
     }
 
