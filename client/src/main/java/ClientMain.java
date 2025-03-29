@@ -15,5 +15,3 @@ public class ClientMain {
         new Repl(server).run();
     }
 }
-
-// Error message conversion (DONE), ServerFacadeTests (DONE), Code Style (DONE), Pass off

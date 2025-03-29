@@ -25,7 +25,7 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
-        while (!result.equals("quit")) { // gameClient to be implemented later, not needed for now
+        while (!result.equals("Quitting")) { // gameClient to be implemented later, not needed for now
             printPrompt();
             String line = scanner.nextLine();
 
