@@ -9,6 +9,7 @@ import static ui.EscapeSequences.*;
 public class Repl {
     private LoginClient loginClient;
     private MainClient mainClient;
+    private GameClient gameClient;
     private boolean loggedIn;
 
     public Repl(ServerFacade serverFacade) {

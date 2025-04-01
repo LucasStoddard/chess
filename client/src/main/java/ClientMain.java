@@ -15,3 +15,12 @@ public class ClientMain {
         new Repl(server).run();
     }
 }
+
+// TODO:
+//      1. Make commands and messages
+//      2. Create WebSocketHandler
+//      3. Update Server.java
+//      4. Update ServerFacade for new WS commands
+//      5. Update UI for printing the current board
+//      6. Update UI for the help commands
+//      7. Update repl loop
