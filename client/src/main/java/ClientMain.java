@@ -17,8 +17,8 @@ public class ClientMain {
 }
 
 // TODO:
-//      1. Make commands and messages
-//      2. Create WebSocketHandler
+//      1. Make user commands and server messages
+//      2. Create WebSocketHandler and add notifications
 //      3. Update Server.java
 //      4. Update ServerFacade for new WS commands
 //      5. Update UI for printing the current board
