@@ -17,8 +17,11 @@ public class ClientMain {
 }
 
 // TODO:
-//      1. Make user commands and server messages
-//      2. Create WebSocketHandler and add notifications
+//      1. Make user commands and server messages (DONE)
+//      2. Create WebSocketHandler
+//          2.1. Create UserGameCommand handlers
+//          2.2. Create ServerMessage handlers
+// TODO AFTER:
 //      3. Update Server.java
 //      4. Update ServerFacade for new WS commands
 //      5. Update UI for printing the current board
