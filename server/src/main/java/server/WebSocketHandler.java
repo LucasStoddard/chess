@@ -2,7 +2,7 @@ package server;
 
 import chess.*;
 import com.google.gson.Gson;
-import model.AuthData;
+import model.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
@@ -67,21 +67,40 @@ public class WebSocketHandler {
     }
 
     // websocket command handlers
-    // This needs code so that connect is handled differently for observers and players
-    private void connectCommand(Session session, String username, ConnectCommand command) {
+    private void connectCommand(Session session, String username, ConnectCommand command) throws IOException {
         try {
+            GameData gameData = gameService.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+            String teamColorJoin = command.getColor();
 
+            if (teamColorJoin.contains("observer")) {   // observers
+                broadcastMessage(gameData.gameID(),
+                        new NotificationMessage("%s has joined to observe the game\n".formatted(username)), session, false);
+                serverMessage(session, new LoadGameMessage(game));
+            } else {                                    // players
+                if (gameData.whiteUsername() == null && teamColorJoin.equals("white")) {
+                    broadcastMessage(gameData.gameID(),
+                            new NotificationMessage("%s has joined as white\n".formatted(username)), session, false);
+                    serverMessage(session, new LoadGameMessage(game));
+                } else if (gameData.blackUsername() == null && teamColorJoin.equals("black")) {
+                    broadcastMessage(gameData.gameID(),
+                            new NotificationMessage("%s has joined as black\n".formatted(username)), session, false);
+                    serverMessage(session, new LoadGameMessage(game));
+                } else {
+                    serverError(session, new Error("Error: Bad Color"));
+                }
+            }
         } catch (Exception e) {
-
+            serverError(session, new Error(e.getMessage()));
         }
     }
 
 
-    private void leaveCommand(Session session, String username, LeaveCommand command) {
+    private void leaveCommand(Session session, String username, LeaveCommand command) throws IOException {
         try {
 
         } catch (Exception e) {
-
+            serverError(session, new Error(e.getMessage()));
         }
     }
 

@@ -60,4 +60,8 @@ public class GameService {
             throw new DataAccessException(e.getMessage());
         }
     }
+
+    public GameData getGame(int gameID) throws DataAccessException {
+        return gameDAO.getGame(gameID);
+    }
 }
