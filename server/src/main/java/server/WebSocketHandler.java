@@ -12,6 +12,14 @@ import java.io.IOException;
 
 @WebSocket
 public class WebSocketHandler {
+
+    @OnWebSocketConnect
+    public void onConnect(Session session) throws Exception {
+
+    }
+
+
+
     // onMessage handler
     // TODO: look through WebSocket-Spark
     public void onMessage(Session session, String msg) {
