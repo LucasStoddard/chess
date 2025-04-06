@@ -18,21 +18,24 @@ public class ClientMain {
 
 // TODO:
 //      1. Make user commands and server messages (DONE)
-//      2. Create WebSocketHandler
-//          2.1. Create UserGameCommand handlers
-//          2.2. Create ServerMessage handlers
+//      2. Create WebSocketHandler (DONE)
+//          2.1. Create UserGameCommand handlers (DONE)
+//          2.2. Create ServerMessage handlers (DONE)
+//      3. Create WebSocketFacade
+//          3.1. I think it has to extend endpoint? Strange
+//          3.2. Add functions such that they align with "WebSocket Interactions"
+//               (ALSO make sure the order is the same as the sequence diagrams)
+//               (The Rodham document is extremely helpful here)
 
 // TODO: I have a lot of error handling in WebSocketHandler, when it should be beforehand in WebSocketFacade
 //       This doesn't have to be changed immediately, I just need to transfer the functionality
-
-// TODO: I don't know where this fits in, but after WebSocketHandler (which handles server to client)
+// NOTE: I don't know where this fits in, but after WebSocketHandler (which handles server to client)
 //       I need to implement client to server stuff (CONNECT, LOAD_GAME, etc.) and I think this is done
 //                                                  (DIFFERENT FROM MESSAGES THAT GO BY SIMILAR NAMES)
 //       through wsFacade, so that should come before updating server.java
 
 // TODO AFTER:
-//      3. Update Server.java
-//      4. Update ServerFacade for new WS commands (ACTUALLY MAKE WSserverFACADE)
+//      4. Update Server.java
 //      5. Update UI for printing the current board
 //      6. Update UI for the help commands
 //      7. Update repl loop
