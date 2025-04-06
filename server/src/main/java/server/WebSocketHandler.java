@@ -2,9 +2,11 @@ package server;
 
 import chess.*;
 import com.google.gson.Gson;
-import model.*;
+import model.AuthData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.Session;
+import service.GameService;
+import service.UserService;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -12,24 +14,24 @@ import java.io.IOException;
 
 @WebSocket
 public class WebSocketHandler {
+    private final WebSocketSessions wsSessions = new WebSocketSessions();
+    UserService userService;
+    GameService gameService;
 
-    @OnWebSocketConnect
-    public void onConnect(Session session) throws Exception {
-
+    public WebSocketHandler(UserService userservice, GameService gameservice) {
+        userService = userservice;
+        gameService = gameservice;
     }
-
-
-
+    // NOTE: The onOpen, onClose, and onError are going to be within WSFacade
     // onMessage handler
-    // TODO: look through WebSocket-Spark
-    public void onMessage(Session session, String msg) {
+    public void onMessage(Session session, String msg) throws IOException {
         try {
             UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
 
-            // Throws a custom UnauthorizedException. Yours may work differently.
-            String username = getUsername(command.getAuthToken());
+            // Throws a custom UnauthorizedException. Yours may work differently)
+            String username = userService.getUsername(command.getAuthToken());
 
-            saveSession(command.getGameID(), session);
+            wsSessions.addSessionToGame(command.getGameID(), session);
 
             switch (command.getCommandType()) {
                 case CONNECT -> connectCommand(session, username, (ConnectCommand) command);
@@ -39,12 +41,12 @@ public class WebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            serverMessage(session.getSession(), new ErrorMessage("Error: " + e.getMessage()));
+            serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
 
     // message handlers
-    private void serverError(Session session, String username, Error message) throws IOException {
+    private void serverError(Session session, Error message) throws IOException {
         System.out.printf("Error: %s\n", new Gson().toJson(message));
         session.getRemote().sendString(new Gson().toJson(message));
     }
@@ -52,6 +54,7 @@ public class WebSocketHandler {
     private void serverMessage(Session session, String username, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
     }
+
     // websocket command handlers
     private void connectCommand(Session session, String username, ConnectCommand command) {
         try {

@@ -47,4 +47,8 @@ public class UserService { // This is where (de)serialization happens
             throw new DataAccessException(e.getMessage());
         }
     }
+
+    public String getUsername(String authToken) throws DataAccessException {
+        return authDAO.checkAuthData(authToken);
+    }
 }

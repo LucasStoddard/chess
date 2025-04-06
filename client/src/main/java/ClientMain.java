@@ -21,6 +21,14 @@ public class ClientMain {
 //      2. Create WebSocketHandler
 //          2.1. Create UserGameCommand handlers
 //          2.2. Create ServerMessage handlers
+
+// TODO: This is where I currently am, it took ages to figure out WebSocketSessions
+//       at the moment, it seems like after adding some more getters to the service
+//       classes, I'll be able to build out the web socket commands
+//       I still need to expand upon the notifications in general and add one for
+//       broadcasting notifications. The current most helpful document is
+//       "Rodham-ChessWebSocketDesign.png"
+
 // TODO AFTER:
 //      3. Update Server.java
 //      4. Update ServerFacade for new WS commands
