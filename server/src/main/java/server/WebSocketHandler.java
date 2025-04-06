@@ -18,6 +18,7 @@ public class WebSocketHandler {
     private final WebSocketSessions wsSessions = new WebSocketSessions();
     UserService userService;
     GameService gameService;
+    // NOTE: This class may need setters for wsSessions so that WSFacade can interact with them
 
     public WebSocketHandler(UserService userservice, GameService gameservice) {
         userService = userservice;
@@ -74,20 +75,20 @@ public class WebSocketHandler {
             String teamColorJoin = command.getColor();
 
             if (teamColorJoin.contains("observer")) {   // observers
-                broadcastMessage(gameData.gameID(),
-                        new NotificationMessage("%s has joined to observe the game\n".formatted(username)), session, false);
                 serverMessage(session, new LoadGameMessage(game));
+                broadcastMessage(gameData.gameID(),
+                        new NotificationMessage("%s has joined to observe the game".formatted(username)), session, false);
                 wsSessions.addSessionToGame(gameData.gameID(), session);
             } else {                                    // players
                 if (gameData.whiteUsername() == null && teamColorJoin.equals("white")) {
-                    broadcastMessage(gameData.gameID(),
-                            new NotificationMessage("%s has joined as white\n".formatted(username)), session, false);
                     serverMessage(session, new LoadGameMessage(game));
+                    broadcastMessage(gameData.gameID(),
+                            new NotificationMessage("%s has joined as white".formatted(username)), session, false);
                     wsSessions.addSessionToGame(gameData.gameID(), session);
                 } else if (gameData.blackUsername() == null && teamColorJoin.equals("black")) {
-                    broadcastMessage(gameData.gameID(),
-                            new NotificationMessage("%s has joined as black\n".formatted(username)), session, false);
                     serverMessage(session, new LoadGameMessage(game));
+                    broadcastMessage(gameData.gameID(),
+                            new NotificationMessage("%s has joined as black".formatted(username)), session, false);
                     wsSessions.addSessionToGame(gameData.gameID(), session);
                 } else {
                     serverError(session, new Error("Error: Bad Color"));
@@ -104,19 +105,46 @@ public class WebSocketHandler {
             broadcastMessage(command.getGameID(),
                     new NotificationMessage("%s has left the game\n".formatted(username)), session, false);
             wsSessions.removeSessionFromGame(command.getGameID(), session);
+            session.close();
         } catch (Exception e) {
             serverError(session, new Error(e.getMessage()));
         }
     }
 
-    private void makeMoveCommand(Session session, String username, MakeMoveCommand command) {
+    private void makeMoveCommand(Session session, String username, MakeMoveCommand command) throws IOException {
+        // NOTE: This is coded as if the move has already been made
         try {
             GameData gameData = gameService.getGame(command.getGameID());
-            ChessGame game = gameData.game();
-
-
+            ChessGame game = gameData.game(); // Move should have already been made
+            broadcastMessage(command.getGameID(), new LoadGameMessage(game), session, true);
+            broadcastMessage(command.getGameID(),
+                    new NotificationMessage("%s has made move %s".formatted(username, command.getMove().toString())),
+                    session, false);
+            // Lab specifications seems to suggest to broadcast 3 times in the case of "check, checkmate or stalemate"
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                broadcastMessage(command.getGameID(),
+                        new NotificationMessage("%s is in checkmate!".formatted(gameData.whiteUsername())),
+                        session, false);
+            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                broadcastMessage(command.getGameID(),
+                        new NotificationMessage("%s is in checkmate!".formatted(gameData.blackUsername())),
+                        session, false);
+            } else if (game.isInStalemate(game.getTeamTurn())) {
+                // A little wierd, but stalemate only matters for the team about to move
+                broadcastMessage(command.getGameID(),
+                        new NotificationMessage("There is a stalemate!"),
+                        session, false);
+            } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                broadcastMessage(command.getGameID(),
+                        new NotificationMessage("%s is in check...".formatted(gameData.whiteUsername())),
+                        session, false);
+            } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                broadcastMessage(command.getGameID(),
+                        new NotificationMessage("%s is in check...".formatted(gameData.blackUsername())),
+                        session, false);
+            }
         } catch (Exception e) {
-
+            serverError(session, new Error(e.getMessage()));
         }
     }
 

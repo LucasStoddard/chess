@@ -22,6 +22,9 @@ public class ClientMain {
 //          2.1. Create UserGameCommand handlers
 //          2.2. Create ServerMessage handlers
 
+// TODO: I have a lot of error handling in WebSocketHandler, when it should be beforehand in WebSocketFacade
+//       This doesn't have to be changed immediately, I just need to transfer the functionality
+
 // TODO: I don't know where this fits in, but after WebSocketHandler (which handles server to client)
 //       I need to implement client to server stuff (CONNECT, LOAD_GAME, etc.) and I think this is done
 //                                                  (DIFFERENT FROM MESSAGES THAT GO BY SIMILAR NAMES)
