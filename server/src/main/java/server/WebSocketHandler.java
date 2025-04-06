@@ -77,15 +77,18 @@ public class WebSocketHandler {
                 broadcastMessage(gameData.gameID(),
                         new NotificationMessage("%s has joined to observe the game\n".formatted(username)), session, false);
                 serverMessage(session, new LoadGameMessage(game));
+                wsSessions.addSessionToGame(gameData.gameID(), session);
             } else {                                    // players
                 if (gameData.whiteUsername() == null && teamColorJoin.equals("white")) {
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as white\n".formatted(username)), session, false);
                     serverMessage(session, new LoadGameMessage(game));
+                    wsSessions.addSessionToGame(gameData.gameID(), session);
                 } else if (gameData.blackUsername() == null && teamColorJoin.equals("black")) {
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as black\n".formatted(username)), session, false);
                     serverMessage(session, new LoadGameMessage(game));
+                    wsSessions.addSessionToGame(gameData.gameID(), session);
                 } else {
                     serverError(session, new Error("Error: Bad Color"));
                 }
@@ -98,7 +101,9 @@ public class WebSocketHandler {
 
     private void leaveCommand(Session session, String username, LeaveCommand command) throws IOException {
         try {
-
+            broadcastMessage(command.getGameID(),
+                    new NotificationMessage("%s has left the game\n".formatted(username)), session, false);
+            wsSessions.removeSessionFromGame(command.getGameID(), session);
         } catch (Exception e) {
             serverError(session, new Error(e.getMessage()));
         }
@@ -106,6 +111,9 @@ public class WebSocketHandler {
 
     private void makeMoveCommand(Session session, String username, MakeMoveCommand command) {
         try {
+            GameData gameData = gameService.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+
 
         } catch (Exception e) {
 

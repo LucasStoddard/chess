@@ -22,12 +22,10 @@ public class ClientMain {
 //          2.1. Create UserGameCommand handlers
 //          2.2. Create ServerMessage handlers
 
-// TODO: This is where I currently am, it took ages to figure out WebSocketSessions
-//       at the moment, it seems like after adding some more getters to the service
-//       classes, I'll be able to build out the web socket commands
-//       I still need to expand upon the notifications in general and add one for
-//       broadcasting notifications. The current most helpful document is
-//       "Rodham-ChessWebSocketDesign.png"
+// TODO: I don't know where this fits in, but after WebSocketHandler (which handles server to client)
+//       I need to implement client to server stuff (CONNECT, LOAD_GAME, etc.) and I think this is done
+//                                                  (DIFFERENT FROM MESSAGES THAT GO BY SIMILAR NAMES)
+//       through wsFacade, so that should come before updating server.java
 
 // TODO AFTER:
 //      3. Update Server.java
