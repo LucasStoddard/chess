@@ -3,7 +3,7 @@ package ui;
 import chess.*;
 import static ui.EscapeSequences.*;
 
-public class GameUI {
+public class GameUI implements GameHandler {
     ChessBoard board;
 
     public GameUI() {

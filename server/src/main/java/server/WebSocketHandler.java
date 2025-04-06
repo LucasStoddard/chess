@@ -26,12 +26,14 @@ public class WebSocketHandler {
     }
 
     // NOTE: The onOpen, onClose, and onError are going to be within WSFacade
+    // TODO: I assumed that errorHandling would be dealt with by WebSocketFacade
+    //       This was absolutely incorrect
+
     // onMessage handler
     public void onMessage(Session session, String msg) throws IOException {
         try {
             UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
 
-            // Throws a custom UnauthorizedException. Yours may work differently)
             String username = userService.getUsername(command.getAuthToken());
 
             wsSessions.addSessionToGame(command.getGameID(), session);
@@ -73,7 +75,6 @@ public class WebSocketHandler {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game();
             String teamColorJoin = command.getColor();
-
             if (teamColorJoin.contains("observer")) {   // observers
                 serverMessage(session, new LoadGameMessage(game));
                 broadcastMessage(gameData.gameID(),
@@ -95,7 +96,7 @@ public class WebSocketHandler {
                 }
             }
         } catch (Exception e) {
-            serverError(session, new Error(e.getMessage()));
+            serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
 
@@ -110,9 +111,26 @@ public class WebSocketHandler {
             serverError(session, new Error(e.getMessage()));
         }
     }
+    private void canMove(ChessGame game) throws Exception {
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)
+                || game.isInStalemate(game.getTeamTurn())) {
+            throw new Exception("The game has already ended, no more moves can be made buddy");
+        }
+    }
 
     private void makeMoveCommand(Session session, String username, MakeMoveCommand command) throws IOException {
-        // NOTE: This is coded as if the move has already been made
+        // CHECK MOVE AND MAKE IT
+        try {
+            GameData gameData = gameService.getGame(command.getGameID());
+            ChessGame game = gameData.game();
+            canMove(game); // This is for silly people who try to move if the game is already over
+            game.makeMove(command.getMove()); // Error checking for move, doesn't actually update game
+            gameService.updateGame(new GameData(command.getGameID(), gameData.whiteUsername(),
+                    gameData.blackUsername(), gameData.gameName(), game)); // Updates game using gameService
+        } catch (Exception e) {
+            serverError(session, new Error("Error: " + e.getMessage()));
+        }
+        // AFTER MOVE CODE
         try {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game(); // Move should have already been made
@@ -144,7 +162,7 @@ public class WebSocketHandler {
                         session, true);
             }
         } catch (Exception e) {
-            serverError(session, new Error(e.getMessage()));
+            serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
 
@@ -155,7 +173,7 @@ public class WebSocketHandler {
                     new NotificationMessage("%s has resigned".formatted(username)),
                     session, true);
         } catch (Exception e) {
-            serverError(session, new Error(e.getMessage()));
+            serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
 }

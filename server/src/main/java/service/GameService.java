@@ -64,4 +64,9 @@ public class GameService {
     public GameData getGame(int gameID) throws DataAccessException {
         return gameDAO.getGame(gameID);
     }
+
+    public GameData updateGame(GameData game) throws DataAccessException {
+        gameDAO.updateGame(game);
+        return game;
+    }
 }
