@@ -50,7 +50,7 @@ public class WebSocketHandler {
 
     // message handlers
     private void serverError(Session session, Error message) throws IOException {
-        System.out.printf("Error: %s\n", new Gson().toJson(message));
+        System.out.printf("Error: %s", new Gson().toJson(message));
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
@@ -124,35 +124,38 @@ public class WebSocketHandler {
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                 broadcastMessage(command.getGameID(),
                         new NotificationMessage("%s is in checkmate!".formatted(gameData.whiteUsername())),
-                        session, false);
+                        session, true);
             } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
                 broadcastMessage(command.getGameID(),
                         new NotificationMessage("%s is in checkmate!".formatted(gameData.blackUsername())),
-                        session, false);
+                        session, true);
             } else if (game.isInStalemate(game.getTeamTurn())) {
                 // A little wierd, but stalemate only matters for the team about to move
                 broadcastMessage(command.getGameID(),
                         new NotificationMessage("There is a stalemate!"),
-                        session, false);
+                        session, true);
             } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
                 broadcastMessage(command.getGameID(),
-                        new NotificationMessage("%s is in check...".formatted(gameData.whiteUsername())),
-                        session, false);
+                        new NotificationMessage("%s on white is in check...".formatted(gameData.whiteUsername())),
+                        session, true);
             } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
                 broadcastMessage(command.getGameID(),
-                        new NotificationMessage("%s is in check...".formatted(gameData.blackUsername())),
-                        session, false);
+                        new NotificationMessage("%s on black is in check...".formatted(gameData.blackUsername())),
+                        session, true);
             }
         } catch (Exception e) {
             serverError(session, new Error(e.getMessage()));
         }
     }
 
-    private void resignCommand(Session session, String username, ResignCommand command) {
+    private void resignCommand(Session session, String username, ResignCommand command) throws IOException {
         try {
-
+            wsSessions.removeSessionFromGame(command.getGameID(), session);
+            broadcastMessage(command.getGameID(),
+                    new NotificationMessage("%s has resigned".formatted(username)),
+                    session, true);
         } catch (Exception e) {
-
+            serverError(session, new Error(e.getMessage()));
         }
     }
 }
