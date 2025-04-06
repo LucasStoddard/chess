@@ -31,7 +31,7 @@ public class ClientMain {
 
 // TODO AFTER:
 //      3. Update Server.java
-//      4. Update ServerFacade for new WS commands
+//      4. Update ServerFacade for new WS commands (ACTUALLY MAKE WSserverFACADE)
 //      5. Update UI for printing the current board
 //      6. Update UI for the help commands
 //      7. Update repl loop

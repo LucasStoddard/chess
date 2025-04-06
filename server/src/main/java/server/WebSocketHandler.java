@@ -11,6 +11,7 @@ import websocket.commands.*;
 import websocket.messages.*;
 
 import java.io.IOException;
+import java.util.Set;
 
 @WebSocket
 public class WebSocketHandler {
@@ -22,6 +23,7 @@ public class WebSocketHandler {
         userService = userservice;
         gameService = gameservice;
     }
+
     // NOTE: The onOpen, onClose, and onError are going to be within WSFacade
     // onMessage handler
     public void onMessage(Session session, String msg) throws IOException {
@@ -51,11 +53,21 @@ public class WebSocketHandler {
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
-    private void serverMessage(Session session, String username, ServerMessage message) throws IOException {
+    private void serverMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
+    // false for not notifying the rootUser, true for notifying the user
+    private void broadcastMessage(Integer gameID, ServerMessage message, Session session, boolean notifyRootUser) throws IOException {
+        for (Session sessions : wsSessions.getSessionsForGame(gameID)) {
+            if (sessions != session || notifyRootUser) {
+                serverMessage(sessions, message);
+            }
+        }
+    }
+
     // websocket command handlers
+    // This needs code so that connect is handled differently for observers and players
     private void connectCommand(Session session, String username, ConnectCommand command) {
         try {
 
@@ -63,6 +75,7 @@ public class WebSocketHandler {
 
         }
     }
+
 
     private void leaveCommand(Session session, String username, LeaveCommand command) {
         try {
