@@ -16,6 +16,11 @@ import model.*;
 // NOTE: I think it is simply a coincidence that GameHandler (interface) and GameHandler (class)
 //       are named exactly the same, I was a little lost on that.
 
+// TODO: FOLLOW THIS
+//       https://byu.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=155aeaa0-e35e-40fe-94bd-b1a10153d812
+//       I was most confused on deserializaion and what onMessage receives, but this video seems to
+//       clarify it very well.
+
 public class WebSocketFacade extends Endpoint {
     Session session;
     GameHandler gameHandler;
@@ -27,14 +32,15 @@ public class WebSocketFacade extends Endpoint {
 
     // TODO: Add override for onOpen, onClose, and onError
 
-
     // onMessage handler
-    public void onMessage(ServerMessage message) throws IOException {
+    public void onMessage(String msg) throws IOException {
+        UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
+
         try {
             switch (message.getServerMessageType()) {
-                case LOAD_GAME -> connect(session, username, (ConnectCommand) command);
-                case ERROR -> connect(session, username, (ConnectCommand) command);
-                case NOTIFICATION -> connect()
+                case LOAD_GAME -> connect(session);
+                case ERROR -> makeMove(session);
+                case NOTIFICATION -> connect();
             }
         } catch (Exception e) {
             e.printStackTrace();
