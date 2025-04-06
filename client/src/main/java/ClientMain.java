@@ -35,6 +35,7 @@ public class ClientMain {
 //       through wsFacade, so that should come before updating server.java
 
 // TODO AFTER:
+//      ?. Implement WSserver
 //      4. Update Server.java
 //      5. Update UI for printing the current board
 //      6. Update UI for the help commands
