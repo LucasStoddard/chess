@@ -5,5 +5,5 @@ import websocket.messages.*;
 
 public interface GameHandler {
     GameData updateGame(GameData game) throws Exception;
-    void printMessage(ServerMessage message) throws Exception;
+    void printMessage(ServerMessage message);
 }

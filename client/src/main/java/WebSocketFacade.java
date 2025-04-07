@@ -3,6 +3,7 @@ import ui.GameHandler;
 import websocket.commands.*;
 import websocket.messages.*;
 
+import javax.swing.*;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -16,72 +17,72 @@ import model.*;
 // NOTE: I think it is simply a coincidence that GameHandler (interface) and GameHandler (class)
 //       are named exactly the same, I was a little lost on that.
 
-// TODO: FOLLOW THIS
-//       https://byu.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=155aeaa0-e35e-40fe-94bd-b1a10153d812
-//       I was most confused on deserializaion and what onMessage receives, but this video seems to
-//       clarify it very well.
-
 public class WebSocketFacade extends Endpoint {
     Session session;
     GameHandler gameHandler;
 
-    public WebSocketFacade(Session newSession, GameHandler newGameHandler) {
-        session = newSession;
+    public WebSocketFacade(String url, GameHandler newGameHandler) throws ResponseException{
         gameHandler = newGameHandler;
-    }
-
-    // TODO: Add override for onOpen, onClose, and onError
-
-    // onMessage handler
-    public void onMessage(String msg) throws IOException {
-        UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
-
         try {
-            switch (message.getServerMessageType()) {
-                case LOAD_GAME -> connect(session);
-                case ERROR -> makeMove(session);
-                case NOTIFICATION -> connect();
-            }
+            url = url.replace("http", "ws");
+            URI socketURI = new URI(url + "/ws");
+
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            this.session = container.connectToServer(this, socketURI);
+
+            // set message handler
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
+                    gameHandler.printMessage(notification);
+                } // notify? I'm not sure about printMessage
+                // It says "call gameHandler to process message" and nothing else
+            });
         } catch (Exception e) {
-            e.printStackTrace();
-            serverError(session, new Error("Error: " + e.getMessage()));
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public String connect() {
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    public void connect(String authToken, Integer gameID, String teamColor) throws ResponseException {
         try {
-
+            var command = new ConnectCommand(authToken, gameID, teamColor);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception e) {
-
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public String makeMove() {
+    public void makeMove(String authToken, Integer gameID, ChessMove chessMove) throws ResponseException {
         try {
-
+            var command = new MakeMoveCommand(authToken, gameID, chessMove);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception e) {
-
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public String leaveGame() {
+    public void leaveGame(String authToken, Integer gameID) throws ResponseException {
         try {
-
+            var command = new LeaveCommand(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            this.session.close();
         } catch (Exception e) {
-
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public String resignGame() {
+    public void resignGame(String authToken, Integer gameID) throws ResponseException {
         try {
-
+            var command = new ResignCommand(authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception e) {
-
+            throw new ResponseException(500, e.getMessage());
         }
     }
-
-    // THIS IS LIKE THE MESSAGE CONSTRUCTOR
-    private void sendMessage() {
-
-    }
+    // sendMessage was not needed as the code in these methods are sufficient
 }
