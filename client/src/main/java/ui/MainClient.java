@@ -17,7 +17,7 @@ public class MainClient {
 
     public MainClient(ServerFacade serverF) {
         serverFacade = serverF;
-        gameui = new GameUI();
+        gameui = new GameUI(false); // TODO: Update this
     }
 
     public String eval(String input) {

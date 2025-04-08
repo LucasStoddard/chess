@@ -2,14 +2,53 @@ package ui;
 
 import chess.*;
 import static ui.EscapeSequences.*;
+import model.*;
+import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 public class GameUI implements GameHandler {
     ChessBoard board;
+    ChessGame game;
+    Boolean isBlack; // For reversing boards
 
-    public GameUI() {
+    public GameUI(Boolean isBlackPlayer) {
         board = new ChessBoard();
         board.resetBoard();
+        isBlack = isBlackPlayer;
     }
+
+    public GameData updateGame(GameData newGame) {
+        game = newGame.game();
+        board = game.getBoard();
+        return newGame;
+    }
+
+    public String printMessage(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME -> loadGame(isBlack);
+            case ERROR -> errorClient((ErrorMessage) message);
+            case NOTIFICATION -> notifyClient((NotificationMessage) message);
+        }
+        return "Print message error";
+    }
+
+    private String loadGame(boolean isReversed) {
+        printBoard(isReversed);
+    }
+
+    private String errorClient(ErrorMessage message) {
+        return message.getMessage();
+    }
+
+    private String notifyClient(NotificationMessage message) {
+        return message.getMessage();
+    }
+
 
     private String printBoard(boolean isReversed) {
         StringBuilder boardString = new StringBuilder();

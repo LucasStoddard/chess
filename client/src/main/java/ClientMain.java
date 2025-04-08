@@ -29,9 +29,6 @@ public class ClientMain {
 //      4. CURRENT STEP: Update gameUI for GameHandler interface
 //         ALSO: I can do websocketfacade tests now (Edit: No I cannot lol)
 
-// NOTE: I should look into how to interact with connection manager (I think that is basically what
-//       in my code is "WebSocketSessions"
-
 // TODO AFTER:
 //      ?. Implement WSserver
 //      4. Update Server.java
