@@ -30,15 +30,20 @@ public class GameUI implements GameHandler {
 
     public String printMessage(ServerMessage message) {
         switch (message.getServerMessageType()) {
-            case LOAD_GAME -> loadGame(isBlack);
-            case ERROR -> errorClient((ErrorMessage) message);
-            case NOTIFICATION -> notifyClient((NotificationMessage) message);
+            case LOAD_GAME -> {
+                return loadGame(isBlack);
+            }
+            case ERROR -> {
+                return errorClient((ErrorMessage) message);
+            }
+            default -> {
+                return notifyClient((NotificationMessage) message);
+            }
         }
-        return "Print message error";
     }
 
     private String loadGame(boolean isReversed) {
-        printBoard(isReversed);
+        return printBoard(isReversed);
     }
 
     private String errorClient(ErrorMessage message) {
