@@ -21,8 +21,6 @@ public class Repl {
         inGame = false;
     }
 
-    // TODO: I've built out the REPL loop, but first I need to build gameClient
-
     public void run() {
         System.out.println("\n" + SET_TEXT_BOLD + WHITE_QUEEN +
                 " Welcome to Chess, a game that exists. Sign in to start. " + WHITE_QUEEN + RESET_TEXT_BOLD_FAINT);

@@ -41,7 +41,7 @@ public class WebSocketHandler {
                 case RESIGN -> resignCommand(session, username, (ResignCommand) command);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
@@ -58,9 +58,9 @@ public class WebSocketHandler {
 
     // false for not notifying the rootUser, true for notifying the user
     private void broadcastMessage(Integer gameID, ServerMessage message, Session session, boolean notifyRootUser) throws IOException {
-        for (Session sessions : wsSessions.getSessionsForGame(gameID)) {
-            if (sessions != session || notifyRootUser) {
-                serverMessage(sessions, message);
+        for (Session eachSession : wsSessions.getSessionsForGame(gameID)) {
+            if (eachSession != session || notifyRootUser) {
+                serverMessage(eachSession, message);
             }
         }
     }

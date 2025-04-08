@@ -8,6 +8,7 @@ import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.ResignCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -16,13 +17,10 @@ public class GameUI implements GameHandler {
     ChessGame game;
     Boolean isBlack; // For reversing boards
 
+
     public GameUI() {
         board = new ChessBoard();
         board.resetBoard();
-    }
-
-    public GameUI(ChessGame game) {
-        board = game.getBoard();
     }
 
     public GameData updateGame(GameData newGame) {
@@ -31,10 +29,14 @@ public class GameUI implements GameHandler {
         return newGame;
     }
 
+    public ChessGame getGame() {
+        return game;
+    }
+
     public String printMessage(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
-                return loadGame(isBlack);
+                return loadGame((LoadGameMessage) message, isBlack);
             }
             case ERROR -> {
                 return errorClient((ErrorMessage) message);
@@ -45,7 +47,9 @@ public class GameUI implements GameHandler {
         }
     }
 
-    private String loadGame(boolean isReversed) {
+    private String loadGame(LoadGameMessage message, Boolean isReversed) {
+        board = message.getGame().getBoard();
+        game = message.getGame();
         return printBoard(isReversed);
     }
 

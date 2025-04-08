@@ -1,17 +1,13 @@
+package ui;
+
 import com.google.gson.Gson;
-import ui.GameHandler;
 import websocket.commands.*;
 import websocket.messages.*;
 
-import javax.swing.*;
 import javax.websocket.*;
-import java.io.IOException;
 import java.net.URI;
-import java.util.Scanner;
-import websocket.commands.*;
-import websocket.messages.*;
+
 import chess.*;
-import com.google.gson.Gson;
 import model.*;
 
 // NOTE: I think it is simply a coincidence that GameHandler (interface) and GameHandler (class)
