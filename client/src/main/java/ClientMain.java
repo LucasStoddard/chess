@@ -27,6 +27,7 @@ public class ClientMain {
 //               (ALSO make sure the order is the same as the sequence diagrams)
 //               (The Rodham document is extremely helpful here)
 //      4. CURRENT STEP: Update gameUI for GameHandler interface
+//         ALSO: I can do websocketfacade tests now (Edit: No I cannot lol)
 
 // NOTE: I should look into how to interact with connection manager (I think that is basically what
 //       in my code is "WebSocketSessions"

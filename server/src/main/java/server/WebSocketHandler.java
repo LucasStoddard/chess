@@ -25,10 +25,6 @@ public class WebSocketHandler {
         gameService = gameservice;
     }
 
-    // NOTE: The onOpen, onClose, and onError are going to be within WSFacade
-    // TODO: I assumed that errorHandling would be dealt with by WebSocketFacade
-    //       This was absolutely incorrect
-
     // onMessage handler
     public void onMessage(Session session, String msg) throws IOException {
         try {

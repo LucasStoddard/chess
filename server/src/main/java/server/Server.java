@@ -6,6 +6,7 @@ import dataaccess.sql.*;
 import spark.*;
 import dataaccess.*;
 import service.*;
+import server.WebSocketHandler;
 
 import java.sql.SQLException;
 
@@ -18,6 +19,7 @@ public class Server {
     GameService gameS;
     UserHandler userH;
     GameHandler gameH;
+    WebSocketHandler wsHandler;
 
     public Server() {
         try {
@@ -37,6 +39,7 @@ public class Server {
         gameS = new GameService(game, auth);
         userH = new UserHandler(userS);
         gameH = new GameHandler(gameS);
+        wsHandler = new WebSocketHandler(userS, gameS);
     }
 
     public int run(int desiredPort) {
@@ -46,6 +49,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here
 
+        Spark.webSocket("/ws", wsHandler);
         Spark.delete("/db", this::clear);
         Spark.post("/user", userH::register);
         Spark.post("/session", userH::login);
@@ -53,9 +57,6 @@ public class Server {
         Spark.get("/game", gameH::list);
         Spark.post("/game", gameH::create);
         Spark.put("/game", gameH::join);
-
-        // This line initializes the server and can be removed once you have a functioning endpoint
-        // Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
