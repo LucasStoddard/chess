@@ -21,7 +21,7 @@ public class WebSocketFacade extends Endpoint {
     Session session;
     GameHandler gameHandler;
 
-    public WebSocketFacade(String url, GameHandler newGameHandler) throws ResponseException{
+    public WebSocketFacade(String url, GameHandler newGameHandler) throws ResponseException {
         gameHandler = newGameHandler;
         try {
             url = url.replace("http", "ws");
@@ -37,7 +37,7 @@ public class WebSocketFacade extends Endpoint {
                     NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
                     gameHandler.printMessage(notification);
                 } // notify? I'm not sure about printMessage
-                // It says "call gameHandler to process message" and nothing else
+                // It says "call gameHandler to process message"
             });
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());

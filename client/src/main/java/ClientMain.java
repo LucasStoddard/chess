@@ -16,7 +16,30 @@ public class ClientMain {
     }
 }
 
-// TODO CURRENTLY:
+// Okay I think I've figured it out, people to server is a one way street, thus the only way we've used serverFacade is to communicate with the
+// server, (Ex. logging in, logging out, registering). WebSocketFacade is NOT a one way street. WSfacade is a TWO way street, thus the ever so
+// sneaky printMessage will ALSO, before printing the message, use WebSocketFacade to SEND a message to the Server. To visualize here is server
+// and client interactions.
+// client message -> repl calls -> MainClient which calls -> serverFacade serializes and sends message -> Server (error or doesn't error) THEN
+//      serverFacade basically (y/n error?) -> MainClient which returns a string to the repl -> repl prints message -> client can see message
+// BUT for WSFacade the interactions can be as follows (KEEP IN MIND: gameClient ONLY USES WebSocketFacade)
+// client message -> repl calls -> GameClient which calls -> webSocketFacade which serializes(?) and sends message -> Websocket
+// NOW COMPLETELY SEPARATELY
+// Websocket sends message -> WebSocketHandler deserializes that message and sends it MULTIPLE or ONE client
+// AGAIN SEPARATELY
+// WebSocketHandler sends message(s) to client(s) -> WebSocketFacade gets a message -> WebSocketFacade calls GameClient to process message ->
+//      GameClient (based upon the message) either sends a board OR a simple message -> REPL prints message -> client can see message
+
+// This is all built to work in any order, so you may be about to make a move, but if someone starts observing, both players need to know, even
+// before you've made a move.
+// Everything before is action -> server reaction -> response based upon reaction to user
+// NOW it is action -> websocket ??? full stop ... websocket action -> websocket reaction -> send message to user
+
+// TODO NOW:
+//      1. Update Clients to use wsfacade
+//      2. Get Repl Loop
+
+// TODO FUTURE:
 //      1. Finish GameClient
 //      2. Flesh out the interactions between GameClient and WebSocket
 //      3. Update Repl loop
