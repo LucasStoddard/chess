@@ -11,13 +11,17 @@ public class Repl {
     private MainClient mainClient;
     private GameClient gameClient;
     private boolean loggedIn;
+    private boolean inGame;
 
     public Repl(ServerFacade serverFacade) {
         loginClient = new LoginClient(serverFacade);
         mainClient = new MainClient(serverFacade);
         gameClient = new GameClient(serverFacade);
         loggedIn = false;
+        inGame = false;
     }
+
+    // TODO: I've built out the REPL loop, but first I need to build gameClient
 
     public void run() {
         System.out.println("\n" + SET_TEXT_BOLD + WHITE_QUEEN +
@@ -32,7 +36,9 @@ public class Repl {
             String line = scanner.nextLine();
 
             try {
-                if (loggedIn) {
+                if (inGame) {
+                    result = gameClient.eval(line);
+                } else if (loggedIn) {
                     result = mainClient.eval(line);
                 } else {
                     result = loginClient.eval(line);
@@ -51,6 +57,9 @@ public class Repl {
                     System.out.println("\n" + mainClient.help());
                 } else if (result.contains("Successfully logged out")) {
                     loggedIn = false;
+                } else if (result.contains("Successfully joined ")) {
+                    // different stuff for teams and all that jazz
+                    inGame = true;
                 }
             } catch (Throwable e) {
                 var msg = e.toString();

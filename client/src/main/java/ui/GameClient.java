@@ -9,9 +9,15 @@ import static ui.EscapeSequences.*;
 
 public class GameClient {
     private final ServerFacade serverFacade;
+    private GameUI gameui;
 
     public GameClient(ServerFacade serverF) {
         serverFacade = serverF;
+        gameui = new GameUI(); // TODO: Uhhh how does the gameUI get the game?
+    }
+
+    public void setGameClient(Boolean isBlack) {
+        gameui.updateTeam(isBlack);
     }
 
     public String eval(String input) {
@@ -21,9 +27,11 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "leave" -> leave();
-                //case "game" -> gamehelp();
-                //case "register" -> register(params);
-                //case "clear" -> clear();
+                case "game" -> gameHelp();
+                case "redraw" -> redraw();
+                case "make" -> makeMove(params);
+                case "resign" -> resign();
+                case "highlight" -> highlightLegalMoves(params);
                 default -> helpCommands();
             };
         } catch (ResponseException e) {
@@ -42,7 +50,49 @@ public class GameClient {
                 );
     }
 
+    public String gameHelp() {
+        return "Here's some help"; // NOT DONE
+    }
+
+    public String redraw() {
+        return gameui.getGameString();
+    }
+
+    public String resign() {
+        return "Resigning..."; // NOT DONE
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        inputFilter(params.length,2); // "move" and then the actual move
+        try {
+            serverFacade.register(null); // TODO: This is wrong of course
+            return "hehehe silly";
+        } catch (ResponseException e) {
+            throw new ResponseException(500, "Error: Invalid move");
+        }
+    }
+
+    public String highlightLegalMoves(String... params) throws ResponseException {
+        inputFilter(params.length,3); // "legal moves" and then the actual position of the piece
+        try {
+            serverFacade.register(null); // TODO: This is wrong of course
+            return "hehehe silly";
+        } catch (ResponseException e) {
+            throw new ResponseException(500, "Error: Invalid piece");
+        }
+    }
+
     public String leave() {
         return "leaving...";
+    }
+
+    public void inputFilter(int length, int desiredLength) throws ResponseException {
+        if (length == desiredLength) {
+            return;
+        } else if (length > desiredLength) {
+            throw new ResponseException(400, "Error: Too many arguments given");
+        } else {
+            throw new ResponseException(400, "Error: Too few arguments given");
+        }
     }
 }

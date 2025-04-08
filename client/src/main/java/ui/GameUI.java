@@ -16,10 +16,13 @@ public class GameUI implements GameHandler {
     ChessGame game;
     Boolean isBlack; // For reversing boards
 
-    public GameUI(Boolean isBlackPlayer) {
+    public GameUI() {
         board = new ChessBoard();
         board.resetBoard();
-        isBlack = isBlackPlayer;
+    }
+
+    public GameUI(ChessGame game) {
+        board = game.getBoard();
     }
 
     public GameData updateGame(GameData newGame) {
@@ -52,6 +55,10 @@ public class GameUI implements GameHandler {
 
     private String notifyClient(NotificationMessage message) {
         return message.getMessage();
+    }
+
+    public void updateTeam(Boolean isBlackPlayer) {
+        isBlack = isBlackPlayer;
     }
 
 
@@ -130,8 +137,13 @@ public class GameUI implements GameHandler {
         }
         return boardString.toString();
     }
+
     public String getGameStringBothSides() {
         return printBoard(false) + "\n" + printBoard(true);
+    }
+
+    public String getGameString() {
+        return printBoard(isBlack);
     }
 
     private String squareColor(int row, int col) {
