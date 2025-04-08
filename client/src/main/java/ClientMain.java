@@ -16,25 +16,11 @@ public class ClientMain {
     }
 }
 
-// TODO:
-//      1. Make user commands and server messages (DONE)
-//      2. Create WebSocketHandler (DONE)
-//          2.1. Create UserGameCommand handlers (DONE)
-//          2.2. Create ServerMessage handlers (DONE)
-//      3. Create WebSocketFacade (DONE)
-//          3.1. I think it has to extend endpoint? Strange (DONE)
-//          3.2. Add functions such that they align with "WebSocket Interactions" (DONE)
-//               (ALSO make sure the order is the same as the sequence diagrams)
-//               (The Rodham document is extremely helpful here)
-//      4. CURRENT STEP: Update gameUI for GameHandler interface
-//         ALSO: I can do websocketfacade tests now (Edit: No I cannot lol)
-
-// TODO AFTER:
-//      ?. Implement WSserver
-//      4. Update Server.java
-//      5. Update UI for printing the current board
-//      6. Update UI for the help commands
-//      7. Update repl loop
+// TODO CURRENTLY:
+//      1. Finish GameClient
+//      2. Flesh out the interactions between GameClient and WebSocket
+//      3. Update Repl loop
+//      4. Start with WebSocketFacadeTests
 
 // NOTE: I have a lot of error handling in WebSocketHandler, when it should be beforehand in WebSocketFacade
 //       This doesn't have to be changed immediately, I just need to transfer the functionality
