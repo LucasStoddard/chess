@@ -49,14 +49,14 @@ public class WebSocketHandler {
     @OnWebSocketError
     public void onError(Session session, Throwable t) {
         try {
-            serverError(session, (Error) t);
+            serverError(session, t);
         } catch (Exception e) {
-            System.out.printf("Double error!");
+            System.out.printf("onError error: " + t.getMessage());
         }
     }
 
-    private void serverError(Session session, Error message) throws IOException {
-        System.out.printf("Error: %s", new Gson().toJson(message));
+    private void serverError(Session session, Throwable message) throws IOException {
+        System.out.printf(message.getMessage());
         session.getRemote().sendString(new Gson().toJson(message));
     }
 

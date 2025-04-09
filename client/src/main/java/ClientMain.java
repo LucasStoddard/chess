@@ -16,6 +16,14 @@ public class ClientMain {
     }
 }
 
+// TODO:
+//      1. Get WebSocket working
+//      2. Pass WebSocketTests
+//      3. Move on to Repl loop and GameUI debugging
+//      4. Implement validMoves
+//      5. Pass Autograder silliness.
+//      6. TA Passoff
+
 // Okay I think I've figured it out, people to server is a one way street, thus the only way we've used serverFacade is to communicate with the
 // server, (Ex. logging in, logging out, registering). ui.WebSocketFacade is NOT a one way street. WSfacade is a TWO way street, thus the ever so
 // sneaky printMessage will ALSO, before printing the message, use ui.WebSocketFacade to SEND a message to the Server. To visualize here is server
@@ -35,12 +43,12 @@ public class ClientMain {
 // Everything before is action -> server reaction -> response based upon reaction to user
 // NOW it is action -> websocket ??? full stop ... websocket action -> websocket reaction -> send message to user
 
-// TODO NOW:
+// NOW:
 //      0. Finish promotion code and other code for Chess Moves
 //      1. Get gameClient completely working
 //      2. Get the Server -> Client messages working (and printing) through gameClient
 
-// TODO FUTURE:
+// FUTURE:
 //      0. Update Clients to use wsfacade, Get Repl Loop working (?)
 //      1. Finish GameClient
 //      2. Flesh out the interactions between GameClient and WebSocket
