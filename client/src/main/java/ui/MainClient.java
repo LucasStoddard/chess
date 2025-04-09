@@ -13,11 +13,13 @@ import static ui.EscapeSequences.*;
 public class MainClient {
     private final ServerFacade serverFacade;
     private Map<Integer, Integer> fakeToRealGameID = new HashMap<>();
-    private final GameUI gameui;
+    private GameUI gameui;
+    private WebSocketFacade wsFacade;
 
-    public MainClient(ServerFacade serverF) {
+    public MainClient(ServerFacade serverF, WebSocketFacade webSocketFacade, GameUI gameUI) {
         serverFacade = serverF;
-        gameui = new GameUI();
+        gameui = gameUI;
+        wsFacade = webSocketFacade;
     }
 
     public String eval(String input) {
@@ -120,8 +122,18 @@ public class MainClient {
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
             try {
-                serverFacade.join(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])), params[1].toUpperCase());
-                return gameString();
+                String team = params[1].toUpperCase();
+                int newGameID = fakeToRealGameID.get(joinFilter(params[0]));
+                serverFacade.join(serverFacade.getAuth(), newGameID, team);
+                wsFacade.connect(serverFacade.getAuth(), newGameID, team);
+                gameui.updateGameUI(serverFacade.getAuth(), newGameID);
+                if (team.contains("WHITE")) {
+                    gameui.updateTeam(false);
+                    return "Joining game as white...";
+                } else {
+                    gameui.updateTeam(true);
+                    return "Joining game as black...";
+                }
             } catch (ResponseException e) {
                 if (e.getMessage().contains("400")) {
                     throw new ResponseException(500, "Error: Invalid team color");
@@ -143,8 +155,11 @@ public class MainClient {
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
             try {
-                joinFilter(params[0]); // Store this value in the later phases
-                return gameString();
+                joinFilter(params[0]);
+                gameui.updateTeam(false);
+                gameui.updateGameUI(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])));
+                wsFacade.connect(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])), "observer");
+                return "Joining game as an observer...";
             } catch (Exception e) {
                 throw new ResponseException(400, e.getMessage());
             }
@@ -153,9 +168,5 @@ public class MainClient {
         } else {
             throw new ResponseException(400, "Error: Too few arguments given");
         }
-    }
-
-    public String gameString() {
-        return gameui.getGameStringBothSides();
     }
 }

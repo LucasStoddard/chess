@@ -16,16 +16,23 @@ public class GameUI implements GameHandler {
     ChessBoard board;
     ChessGame game;
     Boolean isBlack; // For reversing boards
-
+    String authToken;
+    int gameID;
 
     public GameUI() {
         board = new ChessBoard();
         board.resetBoard();
     }
 
+    public void updateGameUI(String auth, int gameId) {
+        authToken = auth;
+        gameID = gameId;
+    }
+
     public GameData updateGame(GameData newGame) {
         game = newGame.game();
         board = game.getBoard();
+        gameID = newGame.gameID();
         return newGame;
     }
 
@@ -164,5 +171,13 @@ public class GameUI implements GameHandler {
                 return SET_BG_COLOR_DARK_TAN;
             }
         }
+    }
+
+    public String initGameClientAuth() {
+        return authToken;
+    }
+
+    public int initGameClientID() {
+        return gameID;
     }
 }

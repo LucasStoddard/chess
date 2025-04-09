@@ -25,7 +25,7 @@ public class WebSocketHandler {
         gameService = gameservice;
     }
 
-    // onMessage handler
+    @OnWebSocketMessage
     public void onMessage(Session session, String msg) throws IOException {
         try {
             UserGameCommand command = new Gson().fromJson(msg, UserGameCommand.class);
@@ -46,7 +46,15 @@ public class WebSocketHandler {
         }
     }
 
-    // message handlers
+    @OnWebSocketError
+    public void onError(Session session, Throwable t) {
+        try {
+            serverError(session, (Error) t);
+        } catch (Exception e) {
+            System.out.printf("Double error!");
+        }
+    }
+
     private void serverError(Session session, Error message) throws IOException {
         System.out.printf("Error: %s", new Gson().toJson(message));
         session.getRemote().sendString(new Gson().toJson(message));
@@ -77,12 +85,12 @@ public class WebSocketHandler {
                         new NotificationMessage("%s has joined to observe the game".formatted(username)), session, false);
                 wsSessions.addSessionToGame(gameData.gameID(), session);
             } else {                                    // players
-                if (gameData.whiteUsername() == null && teamColorJoin.equals("white")) {
+                if (gameData.whiteUsername() == null && teamColorJoin.equalsIgnoreCase("white")) {
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as white".formatted(username)), session, false);
                     wsSessions.addSessionToGame(gameData.gameID(), session);
-                } else if (gameData.blackUsername() == null && teamColorJoin.equals("black")) {
+                } else if (gameData.blackUsername() == null && teamColorJoin.equalsIgnoreCase("black")) {
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as black".formatted(username)), session, false);

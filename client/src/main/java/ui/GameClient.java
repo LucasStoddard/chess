@@ -15,16 +15,16 @@ public class GameClient {
     private Integer gameID;
     private Boolean promotionSpecialCase = false;
     private ChessMove promotionMoveQueue;
+    private Boolean setUpFlag = false;
 
     public GameClient(WebSocketFacade webSocketFacade, GameUI gameUI) {
         wsFacade = webSocketFacade;
         gameui = gameUI;
     }
 
-    public GameClientInitialize(String auth, int id, ) {
+    public void GameClientInitialize(String auth, int id) {
         authToken = auth;
         gameID = id;
-        gameui = new GameUI();
     }
 
     public void setGameClientTeam(Boolean isBlack) {
@@ -33,6 +33,10 @@ public class GameClient {
 
 
     public String eval(String input) {
+        if (!setUpFlag) {
+            GameClientInitialize(gameui.initGameClientAuth(), gameui.initGameClientID());
+            setUpFlag = true;
+        }
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";

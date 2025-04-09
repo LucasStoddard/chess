@@ -32,9 +32,9 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                     NotificationMessage notification = new Gson().fromJson(message, NotificationMessage.class);
                     gameHandler.printMessage(notification);
-                } // notify? I'm not sure about printMessage
-                // It says "call gameHandler to process message"
+                }
             });
+
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());
         }

@@ -7,6 +7,7 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl {
+    private WebSocketFacade wsFacade;
     private LoginClient loginClient;
     private MainClient mainClient;
     private GameClient gameClient;
@@ -16,10 +17,11 @@ public class Repl {
 
     public Repl(ServerFacade serverFacade, String serverUrl) {
         try {
-            loginClient = new LoginClient(serverFacade);
-            mainClient = new MainClient(serverFacade);
             gameHandler = new GameUI();
-            gameClient = new GameClient(new WebSocketFacade(serverUrl, gameHandler), gameHandler);
+            wsFacade = new WebSocketFacade(serverUrl, gameHandler);
+            loginClient = new LoginClient(serverFacade);
+            mainClient = new MainClient(serverFacade, wsFacade, gameHandler);
+            gameClient = new GameClient(wsFacade, gameHandler);
             loggedIn = false;
             inGame = false;
         } catch (Exception e) {
@@ -62,7 +64,7 @@ public class Repl {
                 } else if (result.contains("Successfully logged out")) {
                     loggedIn = false;
                 } else if (result.contains("Successfully joined ")) {
-                    // different stuff for teams and all that jazz
+                    // TODO: implement switching
                     inGame = true;
                 }
             } catch (Throwable e) {
