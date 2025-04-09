@@ -10,15 +10,21 @@ public class Repl {
     private LoginClient loginClient;
     private MainClient mainClient;
     private GameClient gameClient;
+    private GameUI gameHandler;
     private boolean loggedIn;
     private boolean inGame;
 
-    public Repl(ServerFacade serverFacade) {
-        loginClient = new LoginClient(serverFacade);
-        mainClient = new MainClient(serverFacade);
-        gameClient = new GameClient(serverFacade);
-        loggedIn = false;
-        inGame = false;
+    public Repl(ServerFacade serverFacade, String serverUrl) {
+        try {
+            loginClient = new LoginClient(serverFacade);
+            mainClient = new MainClient(serverFacade);
+            gameHandler = new GameUI();
+            gameClient = new GameClient(new WebSocketFacade(serverUrl, gameHandler), gameHandler);
+            loggedIn = false;
+            inGame = false;
+        } catch (Exception e) {
+            System.out.println("Error setting up repl loop");
+        }
     }
 
     public void run() {

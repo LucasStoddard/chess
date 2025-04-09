@@ -14,19 +14,23 @@ public class GameClient {
     private String authToken;
     private Integer gameID;
     private Boolean promotionSpecialCase = false;
+    private ChessMove promotionMoveQueue;
 
-    public GameClient(WebSocketFacade webSocketFacade, String auth, int id) {
+    public GameClient(WebSocketFacade webSocketFacade, GameUI gameUI) {
         wsFacade = webSocketFacade;
+        gameui = gameUI;
+    }
+
+    public GameClientInitialize(String auth, int id, ) {
         authToken = auth;
         gameID = id;
         gameui = new GameUI();
     }
 
-    public void setGameClient(Boolean isBlack) {
+    public void setGameClientTeam(Boolean isBlack) {
         gameui.updateTeam(isBlack);
     }
 
-    // TODO: Flesh out the rest of moves, including promotional moves.
 
     public String eval(String input) {
         try {
@@ -34,7 +38,7 @@ public class GameClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (promotionSpecialCase) {
-                promoteMove(params);
+                return makeMovePromotionCase(params);
             }
             return switch (cmd) {
                 case "leave" -> leave();
@@ -43,7 +47,6 @@ public class GameClient {
                 case "make" -> makeMove(params);
                 case "resign" -> resign();
                 //case "highlight" -> highlightLegalMoves(params);
-                //case "promote" -> promoteMove(params);
                 default -> helpCommands();
             };
         } catch (ResponseException e) {
@@ -79,13 +82,38 @@ public class GameClient {
         try {
             ChessMove newMove = inputToChessMove(params[1]);
             wsFacade.makeMove(authToken, gameID, newMove);
-            // send loadgame command
+            return "Making move...";
         } catch (ResponseException e) {
             throw new ResponseException(400, e.getMessage());
         } catch (Exception e) {
-            promotionSpecialCase = true;
-            return "What would you like to promote your Piece to?";
+            return "What would you like to promote your piece to? (queen, rook, bishop, or knight)";
         }
+    }
+
+    public String makeMovePromotionCase(String... params) throws ResponseException {
+        inputFilter(params.length, 1);
+        ChessGame tempGame = gameui.getGame();
+        ChessMove promotionMove = inputToPromotionMove(params[0]);
+        promotionSpecialCase = false;
+        promotionMoveQueue = null;
+        try {
+            tempGame.makeMove(promotionMove);
+            wsFacade.makeMove(authToken, gameID, promotionMove);
+            return "Successfully made promotion move";
+        } catch (InvalidMoveException e) {
+            throw new ResponseException(400, "Error: " + e.getMessage() + "\nPut in a new move or command");
+        }
+    }
+
+    public ChessMove inputToPromotionMove(String param) {
+        var type = switch (param) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> null;
+        }; // makeMove SHOULD throw the error and otherwise infinite loops will be a problem
+        return new ChessMove(promotionMoveQueue.getStartPosition(), promotionMoveQueue.getEndPosition(), type);
     }
 
 //    public String highlightLegalMoves(String... params) throws ResponseException {
@@ -103,34 +131,32 @@ public class GameClient {
     }
 
     private void inputFilter(int length, int desiredLength) throws ResponseException {
-        if (length == desiredLength) {
-            return;
-        } else if (length > desiredLength) {
+        if (length > desiredLength) {
             throw new ResponseException(400, "Error: Too many arguments given");
-        } else {
+        } else if (length < desiredLength) {
             throw new ResponseException(400, "Error: Too few arguments given");
         }
     }
 
     // I am going to hope and pray that this is just "e4e6" format
-    private ChessMove inputToChessMove(String param) throws ResponseException {
+    private ChessMove inputToChessMove(String param) throws Exception {
         ChessGame tempGame = gameui.getGame();
         ChessMove proposedMove;
-        try {
-            proposedMove = parseChessMove(param, tempGame);
-        } catch (Exception e) {
-
+        proposedMove = parseChessMove(param);
+        if (promotionFlagCheck(proposedMove.getEndPosition(), tempGame.getBoard().getPiece(proposedMove.getStartPosition()))) {
+            promotionSpecialCase = true;
+            promotionMoveQueue = proposedMove;
+            throw new Exception();
         }
-
         try {
-            tempGame.makeMove(proposedMove);
+            tempGame.makeMove(proposedMove); // is the move valid?
             return proposedMove;
         } catch (InvalidMoveException e) {
             throw new ResponseException(400, "Error: " + e.getMessage());
         }
     }
 
-    public ChessMove parseChessMove(String param, ChessGame tempGame) throws ResponseException {
+    public ChessMove parseChessMove(String param) throws ResponseException {
         String[] moveArray = param.split("");
         if (moveArray.length != 4) {
             throw new ResponseException(400, "Error: Invalid move");
@@ -140,11 +166,7 @@ public class GameClient {
         int ePosRow = letterToRowCol(moveArray[2], true);
         int ePosCol = letterToRowCol(moveArray[3], false);
         ChessPosition sPosition = new ChessPosition(sPosRow, sPosCol);
-        ChessPiece movingPiece = tempGame.getBoard().getPiece(sPosition);
         ChessPosition ePosition = new ChessPosition(ePosRow, ePosCol);
-        if (promotionFlagCheck(ePosition, movingPiece)) {
-
-        }
         return new ChessMove(sPosition, ePosition, null);
     }
 

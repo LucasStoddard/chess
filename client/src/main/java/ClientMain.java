@@ -12,7 +12,7 @@ public class ClientMain {
             serverUrl = args[0];
         }
         ServerFacade server = new ServerFacade(serverUrl);
-        new Repl(server).run();
+        new Repl(server, serverUrl).run();
     }
 }
 
