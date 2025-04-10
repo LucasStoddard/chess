@@ -16,6 +16,10 @@ public class ClientMain {
     }
 }
 
+// CURRENT BUG: The command that is sent by WebSocketHandler is not properly being caught by WebSocketFacade
+//              This becomes a problem when teamColorJoin is checked, as it is null even though it should not be
+//              Wait I set it to null somewhere...
+
 // TODO:
 //      1. Get WebSocket working
 //      2. Pass WebSocketTests

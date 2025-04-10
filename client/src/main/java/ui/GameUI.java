@@ -2,6 +2,8 @@ package ui;
 
 import chess.*;
 import static ui.EscapeSequences.*;
+
+import com.google.gson.Gson;
 import model.*;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
@@ -40,32 +42,28 @@ public class GameUI implements GameHandler {
         return game;
     }
 
-    public String printMessage(ServerMessage message) {
-        switch (message.getServerMessageType()) {
-            case LOAD_GAME -> {
-                return loadGame((LoadGameMessage) message, isBlack);
-            }
-            case ERROR -> {
-                return errorClient((ErrorMessage) message);
-            }
-            default -> {
-                return notifyClient((NotificationMessage) message);
-            }
+    public void printMessage(String message) {
+        if (message.contains("LOAD_GAME")) {
+            loadGame(new Gson().fromJson(message, LoadGameMessage.class), isBlack);
+        } else if (message.contains("ERROR")) {
+            errorClient(new Gson().fromJson(message, ErrorMessage.class));
+        } else {
+            notifyClient(new Gson().fromJson(message, NotificationMessage.class));
         }
     }
 
-    private String loadGame(LoadGameMessage message, Boolean isReversed) {
+    private void loadGame(LoadGameMessage message, Boolean isReversed) {
         board = message.getGame().getBoard();
         game = message.getGame();
-        return printBoard(isReversed);
+        System.out.println(printBoard(isReversed));
     }
 
-    private String errorClient(ErrorMessage message) {
-        return message.getMessage();
+    private void errorClient(ErrorMessage message) {
+        System.out.println(message.getMessage());
     }
 
-    private String notifyClient(NotificationMessage message) {
-        return message.getMessage();
+    private void notifyClient(NotificationMessage message) {
+        System.out.println(message.getMessage());
     }
 
     public void updateTeam(Boolean isBlackPlayer) {

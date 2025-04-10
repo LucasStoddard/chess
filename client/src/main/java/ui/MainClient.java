@@ -123,6 +123,7 @@ public class MainClient {
         if (params.length == 2) {
             try {
                 String team = params[1].toUpperCase();
+                System.out.println(team);
                 int newGameID = fakeToRealGameID.get(joinFilter(params[0]));
                 serverFacade.join(serverFacade.getAuth(), newGameID, team);
                 wsFacade.connect(serverFacade.getAuth(), newGameID, team);

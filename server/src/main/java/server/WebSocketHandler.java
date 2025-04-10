@@ -35,13 +35,13 @@ public class WebSocketHandler {
             wsSessions.addSessionToGame(command.getGameID(), session);
 
             switch (command.getCommandType()) {
-                case CONNECT -> connectCommand(session, username, (ConnectCommand) command);
-                case MAKE_MOVE -> makeMoveCommand(session, username, (MakeMoveCommand) command);
-                case LEAVE -> leaveCommand(session, username, (LeaveCommand) command);
-                case RESIGN -> resignCommand(session, username, (ResignCommand) command);
+                case CONNECT -> connectCommand(session, username, new Gson().fromJson(msg, ConnectCommand.class));
+                case MAKE_MOVE -> makeMoveCommand(session, username, new Gson().fromJson(msg, MakeMoveCommand.class));
+                case LEAVE -> leaveCommand(session, username, new Gson().fromJson(msg, LeaveCommand.class));
+                case RESIGN -> resignCommand(session, username, new Gson().fromJson(msg, ResignCommand.class));
             }
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             serverError(session, new Error("Error: " + e.getMessage()));
         }
     }
@@ -54,6 +54,16 @@ public class WebSocketHandler {
             System.out.printf("onError error: " + t.getMessage());
         }
     }
+        // I don't think I need this? I think the facade just deals with messages
+//    @OnWebSocketClose
+//    public void onClose(Session session, int status, String cause) {
+//        try {
+//            int gameID = wsSessions.getSessionID(session);
+//            wsSessions.removeSessionFromGame(gameID, session);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
     private void serverError(Session session, Throwable message) throws IOException {
         System.out.printf(message.getMessage());

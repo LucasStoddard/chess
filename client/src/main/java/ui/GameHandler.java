@@ -5,5 +5,5 @@ import websocket.messages.*;
 
 public interface GameHandler {
     GameData updateGame(GameData game);
-    String printMessage(ServerMessage message);
+    void printMessage(String message);
 }

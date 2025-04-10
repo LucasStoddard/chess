@@ -25,11 +25,19 @@ public class WebSocketSessions {
             newSet.add(session);
             sessionMap.put(gameID, newSet);
         }
-
     }
 
     void removeSessionFromGame(Integer gameID, Session session) {
         (sessionMap.get(gameID)).remove(session);
+    }
+
+    int getSessionID(Session session) throws Exception {
+        for (int gameIDs : sessionMap.keySet()) {
+            if (getSessionsForGame(gameIDs).contains(session)) {
+                return gameIDs;
+            }
+        }
+        throw new Exception("Player not found in any session");
     }
 
     Set<Session> getSessionsForGame(Integer gameID) {
