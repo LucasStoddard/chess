@@ -6,12 +6,16 @@ public class LoadGameMessage extends ServerMessage {
     ChessGame game;
 
     public LoadGameMessage(ChessGame newGame) {
-        super(ServerMessageType.NOTIFICATION);
+        super(ServerMessageType.LOAD_GAME);
         game = newGame;
     }
 
     public ChessGame getGame() {
-        return game;
+        if (game == null) {
+            return new ChessGame();
+        } else {
+            return game;
+        }
     }
 
 }

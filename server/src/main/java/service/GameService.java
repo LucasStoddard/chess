@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
 
@@ -25,7 +26,7 @@ public class GameService {
         while (gameDAO.ifGame(gameID)) {
             gameID++;
         }
-        GameData newGame = new GameData(gameID, null, null, gameName, null);
+        GameData newGame = new GameData(gameID, null, null, gameName, new ChessGame());
         gameDAO.createGame(newGame);
         return newGame;
     }

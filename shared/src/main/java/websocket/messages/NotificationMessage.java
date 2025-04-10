@@ -3,14 +3,14 @@ package websocket.messages;
 import websocket.commands.UserGameCommand;
 
 public class NotificationMessage extends ServerMessage {
-    String notification;
+    String message;
 
     public NotificationMessage(String message) {
         super(ServerMessageType.NOTIFICATION);
-        notification = message;
+        this.message = message;
     }
 
     public String getMessage() {
-        return notification;
+        return message;
     }
 }

@@ -19,6 +19,7 @@ public class Repl {
         try {
             gameHandler = new GameUI();
             wsFacade = new WebSocketFacade(serverUrl, gameHandler);
+            gameHandler.updateWebSocketFacade(wsFacade);
             loginClient = new LoginClient(serverFacade);
             mainClient = new MainClient(serverFacade, wsFacade, gameHandler);
             gameClient = new GameClient(wsFacade, gameHandler);
@@ -38,7 +39,12 @@ public class Repl {
         var result = "";
 
         while (!result.equals("Quitting")) { // gameClient to be implemented later, not needed for now
-            printPrompt();
+            if (inGame) {
+                printGamePrompt();
+            } else {
+                printPrompt();
+            }
+
             String line = scanner.nextLine();
 
             try {
@@ -63,8 +69,12 @@ public class Repl {
                     System.out.println("\n" + mainClient.help());
                 } else if (result.contains("Successfully logged out")) {
                     loggedIn = false;
-                } else if (result.contains("Successfully joined ")) {
-                    // TODO: implement switching
+                } else if (result.contains("Joining game as ")) {
+                    if (result.contains("black")) {
+                        gameClient.setGameClientTeam(false);
+                    } else {
+                        gameClient.setGameClientTeam(true);
+                    }
                     inGame = true;
                 }
             } catch (Throwable e) {
@@ -77,5 +87,9 @@ public class Repl {
 
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
+    }
+
+    private void printGamePrompt() {
+        System.out.print("\n" + RESET + GREEN);
     }
 }

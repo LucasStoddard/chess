@@ -2,7 +2,9 @@ package server;
 
 import chess.*;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import model.*;
+import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
@@ -42,32 +44,32 @@ public class WebSocketHandler {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            serverError(session, new Error("Error: " + e.getMessage()));
+            // System.out.println(msg);
+            serverMessage(session, new ErrorMessage(e.getMessage()));
         }
     }
 
     @OnWebSocketError
     public void onError(Session session, Throwable t) {
         try {
-            serverError(session, t);
+            serverMessage(session, new ErrorMessage(t.getMessage()));
         } catch (Exception e) {
-            System.out.printf("onError error: " + t.getMessage());
+            System.out.printf("onError error: " + e.getMessage());
         }
     }
-        // I don't think I need this? I think the facade just deals with messages
-//    @OnWebSocketClose
-//    public void onClose(Session session, int status, String cause) {
-//        try {
-//            int gameID = wsSessions.getSessionID(session);
-//            wsSessions.removeSessionFromGame(gameID, session);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
 
-    private void serverError(Session session, Throwable message) throws IOException {
-        System.out.printf(message.getMessage());
-        session.getRemote().sendString(new Gson().toJson(message));
+    @OnWebSocketClose
+    public void onClose(Session session, int status, String cause) {
+        try {
+            int gameID = wsSessions.getSessionID(session);
+            wsSessions.removeSessionFromGame(gameID, session);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void serverError(Session session, String message) throws IOException {
+        session.getRemote().sendString(message);
     }
 
     private void serverMessage(Session session, ServerMessage message) throws IOException {
@@ -84,47 +86,48 @@ public class WebSocketHandler {
     }
 
     // websocket command handlers
-    private void connectCommand(Session session, String username, ConnectCommand command) throws IOException {
+    public void connectCommand(Session session, String username, ConnectCommand command) throws IOException {
         try {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game();
-            String teamColorJoin = command.getColor();
-            if (teamColorJoin.contains("observer")) {   // observers
+            ChessGame.TeamColor teamColorJoin = command.getColor();
+            if (teamColorJoin == null) {   // observers
+                wsSessions.addSessionToGame(gameData.gameID(), session);
                 serverMessage(session, new LoadGameMessage(game));
                 broadcastMessage(gameData.gameID(),
                         new NotificationMessage("%s has joined to observe the game".formatted(username)), session, false);
-                wsSessions.addSessionToGame(gameData.gameID(), session);
-            } else {                                    // players
-                if (gameData.whiteUsername() == null && teamColorJoin.equalsIgnoreCase("white")) {
+            } else { // short circuit                   // players
+                if (gameData.whiteUsername() != null && gameData.whiteUsername().contains(username) && teamColorJoin == ChessGame.TeamColor.WHITE) {
+                    wsSessions.addSessionToGame(gameData.gameID(), session);
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as white".formatted(username)), session, false);
+                } else if (gameData.blackUsername() != null && gameData.blackUsername().contains(username) && teamColorJoin == ChessGame.TeamColor.BLACK) {
                     wsSessions.addSessionToGame(gameData.gameID(), session);
-                } else if (gameData.blackUsername() == null && teamColorJoin.equalsIgnoreCase("black")) {
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as black".formatted(username)), session, false);
-                    wsSessions.addSessionToGame(gameData.gameID(), session);
                 } else {
-                    serverError(session, new Error("Error: Bad Color"));
+                    serverMessage(session, new ErrorMessage("Error: Team already taken"));
                 }
             }
         } catch (Exception e) {
-            serverError(session, new Error("Error: " + e.getMessage()));
+            serverMessage(session, new ErrorMessage(e.getMessage()));
         }
     }
 
 
-    private void leaveCommand(Session session, String username, LeaveCommand command) throws IOException {
+    public void leaveCommand(Session session, String username, LeaveCommand command) throws IOException {
         try {
             broadcastMessage(command.getGameID(),
                     new NotificationMessage("%s has left the game\n".formatted(username)), session, false);
             wsSessions.removeSessionFromGame(command.getGameID(), session);
-            session.close();
+            updateGameService(command.getGameID(), username);
         } catch (Exception e) {
-            serverError(session, new Error(e.getMessage()));
+            serverMessage(session, new ErrorMessage(e.getMessage()));
         }
     }
+
     private void canMove(ChessGame game) throws Exception {
         if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)
                 || game.isInStalemate(game.getTeamTurn())) {
@@ -132,17 +135,35 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMoveCommand(Session session, String username, MakeMoveCommand command) throws IOException {
+    private void noOpponentMove(ChessMove proposedMove, String userName, GameData gameData) throws Exception {
+        ChessGame.TeamColor pieceColor = gameData.game().getBoard().getPiece(proposedMove.getStartPosition()).getTeamColor();
+        ChessGame.TeamColor userTeam;
+        if (userName.contains(gameData.blackUsername())) {
+            userTeam = ChessGame.TeamColor.BLACK;
+        } else if (userName.contains(gameData.whiteUsername())) {
+            userTeam = ChessGame.TeamColor.WHITE;
+        } else {
+            throw new Exception("Error: Silly observer, you can't move the players!");
+        }
+        if (userTeam != pieceColor) {
+            throw new Exception("Error: Silly player, you can't move for your opponent!");
+        }
+    }
+
+    public void makeMoveCommand(Session session, String username, MakeMoveCommand command) throws IOException {
         // CHECK MOVE AND MAKE IT
         try {
+            resignFilter(session, command.getGameID(), username);
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game();
             canMove(game); // This is for silly people who try to move if the game is already over
+            noOpponentMove(command.getMove(), username, gameData);
             game.makeMove(command.getMove()); // Error checking for move, doesn't actually update game
             gameService.updateGame(new GameData(command.getGameID(), gameData.whiteUsername(),
                     gameData.blackUsername(), gameData.gameName(), game)); // Updates game using gameService
         } catch (Exception e) {
-            serverError(session, new Error("Error: " + e.getMessage()));
+            serverMessage(session, new ErrorMessage(e.getMessage()));
+            return;
         }
         // AFTER MOVE CODE
         try {
@@ -176,18 +197,44 @@ public class WebSocketHandler {
                         session, true);
             }
         } catch (Exception e) {
-            serverError(session, new Error("Error: " + e.getMessage()));
+            serverMessage(session, new ErrorMessage(e.getMessage()));
         }
     }
 
-    private void resignCommand(Session session, String username, ResignCommand command) throws IOException {
+    public void resignFilter(Session session, int gameID, String username) throws Exception {
+        if (!wsSessions.getSessionsForGame(gameID).contains(session)) {
+            throw new Exception("Error: You have already resigned");
+        }
+        GameData game = gameService.getGame(gameID);
+        if (game.whiteUsername() == null || game.blackUsername() == null) {
+            throw new Exception("Error: Someone has already resigned");
+        }
+        if (!game.whiteUsername().contains(username) && !game.blackUsername().contains(username)) {
+            throw new Exception("Error: You cannot resign as an observer");
+        }
+    }
+
+    public void resignCommand(Session session, String username, ResignCommand command) throws IOException {
         try {
-            wsSessions.removeSessionFromGame(command.getGameID(), session);
+            resignFilter(session, command.getGameID(), username);
             broadcastMessage(command.getGameID(),
                     new NotificationMessage("%s has resigned".formatted(username)),
                     session, true);
+            wsSessions.removeSessionFromGame(command.getGameID(), session);
+            updateGameService(command.getGameID(), username);
         } catch (Exception e) {
-            serverError(session, new Error("Error: " + e.getMessage()));
+            serverMessage(session, new ErrorMessage(e.getMessage()));
+        }
+    }
+
+    public void updateGameService(int gameID, String username) throws Exception {
+        GameData gameData = gameService.getGame(gameID);
+        if (gameData.blackUsername().contains(username)) {
+            gameService.updateGame(new GameData(gameID, gameData.whiteUsername(),
+                    null, gameData.gameName(), gameData.game()));
+        } else if (gameData.whiteUsername().contains(username)) {
+            gameService.updateGame(new GameData(gameID, null,
+                    gameData.blackUsername(), gameData.gameName(), gameData.game()));
         }
     }
 }

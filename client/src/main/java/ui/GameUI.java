@@ -15,9 +15,10 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class GameUI implements GameHandler {
+    WebSocketFacade wsFacade;
     ChessBoard board;
     ChessGame game;
-    Boolean isBlack; // For reversing boards
+    Boolean isWhite; // For reversing boards
     String authToken;
     int gameID;
 
@@ -42,9 +43,13 @@ public class GameUI implements GameHandler {
         return game;
     }
 
-    public void printMessage(String message) {
+    public void updateWebSocketFacade(WebSocketFacade webSocketFacade) {
+        wsFacade = webSocketFacade;
+    }
+
+    public void printMessage(String message) throws ResponseException {
         if (message.contains("LOAD_GAME")) {
-            loadGame(new Gson().fromJson(message, LoadGameMessage.class), isBlack);
+            loadGame(new Gson().fromJson(message, LoadGameMessage.class), isWhite);
         } else if (message.contains("ERROR")) {
             errorClient(new Gson().fromJson(message, ErrorMessage.class));
         } else {
@@ -52,10 +57,10 @@ public class GameUI implements GameHandler {
         }
     }
 
-    private void loadGame(LoadGameMessage message, Boolean isReversed) {
+    private void loadGame(LoadGameMessage message, Boolean isReversed) throws ResponseException {
         board = message.getGame().getBoard();
         game = message.getGame();
-        System.out.println(printBoard(isReversed));
+        System.out.println(getGameString());
     }
 
     private void errorClient(ErrorMessage message) {
@@ -66,8 +71,8 @@ public class GameUI implements GameHandler {
         System.out.println(message.getMessage());
     }
 
-    public void updateTeam(Boolean isBlackPlayer) {
-        isBlack = isBlackPlayer;
+    public void updateTeam(Boolean isWhitePlayer) {
+        isWhite = isWhitePlayer;
     }
 
 
@@ -152,7 +157,7 @@ public class GameUI implements GameHandler {
     }
 
     public String getGameString() {
-        return printBoard(isBlack);
+        return printBoard(isWhite);
     }
 
     private String squareColor(int row, int col) {

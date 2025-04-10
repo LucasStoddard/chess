@@ -19,7 +19,9 @@ public class WebSocketSessions {
 
     void addSessionToGame(Integer gameID, Session session) {
         if (sessionMap.containsKey(gameID)) {
-            (sessionMap.get(gameID)).add(session);
+            Set<Session> newSet = sessionMap.get(gameID);
+            newSet.add(session);
+            sessionMap.put(gameID, newSet);
         } else {
             Set<Session> newSet = new HashSet<>();
             newSet.add(session);
@@ -28,7 +30,9 @@ public class WebSocketSessions {
     }
 
     void removeSessionFromGame(Integer gameID, Session session) {
-        (sessionMap.get(gameID)).remove(session);
+        Set<Session> newSet = sessionMap.get(gameID);
+        newSet.remove(session);
+        sessionMap.put(gameID, newSet);
     }
 
     int getSessionID(Session session) throws Exception {

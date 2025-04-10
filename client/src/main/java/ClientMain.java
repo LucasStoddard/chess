@@ -16,17 +16,7 @@ public class ClientMain {
     }
 }
 
-// CURRENT BUG: The command that is sent by WebSocketHandler is not properly being caught by WebSocketFacade
-//              This becomes a problem when teamColorJoin is checked, as it is null even though it should not be
-//              Wait I set it to null somewhere...
-
-// TODO:
-//      1. Get WebSocket working
-//      2. Pass WebSocketTests
-//      3. Move on to Repl loop and GameUI debugging
-//      4. Implement validMoves
-//      5. Pass Autograder silliness.
-//      6. TA Passoff
+// TODO: Current problem is multiple sessions
 
 // Okay I think I've figured it out, people to server is a one way street, thus the only way we've used serverFacade is to communicate with the
 // server, (Ex. logging in, logging out, registering). ui.WebSocketFacade is NOT a one way street. WSfacade is a TWO way street, thus the ever so
