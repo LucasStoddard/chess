@@ -41,7 +41,6 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "leave" -> leave();
-                case "game" -> gameHelp();
                 case "redraw" -> redraw();
                 case "make" -> makeMove(params);
                 case "resign" -> resign();
@@ -54,35 +53,37 @@ public class GameClient {
     }
 
     public String helpCommands() {
-        return (SET_TEXT_COLOR_CYAN + "game help" + SET_TEXT_COLOR_WHITE + " - to display what actions you can take within the game \n" +
+        return (SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_WHITE + " - to get help on these commands \n" +
                 SET_TEXT_COLOR_CYAN + "redraw" +  SET_TEXT_COLOR_WHITE + " - to redraw the chess board \n" +
                 SET_TEXT_COLOR_CYAN + "leave" + SET_TEXT_COLOR_WHITE + " - to leave the game \n" +
-                SET_TEXT_COLOR_CYAN + "help" + SET_TEXT_COLOR_WHITE + " - to get help on these commands outside the game \n" +
-                SET_TEXT_COLOR_CYAN + "make move <MOVE> <PROMOTION_PIECE>" + SET_TEXT_COLOR_WHITE + " - to make a particular move within the game \n" +
+                SET_TEXT_COLOR_CYAN + "make move <MOVE> <PROMOTION_PIECE>" + SET_TEXT_COLOR_WHITE +
+                " - to make a particular move within the game \n If your piece can be promoted, put the piece you would like to promote it to" +
+                " at the end" +
                 SET_TEXT_COLOR_CYAN + "resign" + SET_TEXT_COLOR_WHITE + " - to resign \n" +
                 SET_TEXT_COLOR_CYAN + "highlight legal moves" + SET_TEXT_COLOR_WHITE + " - highlight the legal moves a selected piece can make \n"
                 );
-    }
-
-    public String gameHelp() {
-        return "Here's some help"; // NOT DONE
     }
 
     public String redraw() {
         return gameui.getGameString();
     }
 
-    public String resign() {
-        return "Resigning..."; // NOT DONE
+    public String resign() throws ResponseException {
+        try {
+            wsFacade.resignGame(authToken, gameID);
+            return "Resigning...";
+        } catch (Exception e) {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 
     public String makeMove(String... params) throws ResponseException {
         ChessMove newMove;
         try {
             if (params.length == 2) {
-                newMove = inputToChessMove(params[1]);
+                newMove = parseChessMove(params[1]);
             } else if (params.length == 3) {
-                newMove = inputToPromotionMove(inputToChessMove(params[1]), params[2]);
+                newMove = inputToPromotionMove(parseChessMove(params[1]), params[2]);
             } else {
                 throw new ResponseException(400, "Error: Invalid move");
             }
@@ -107,8 +108,13 @@ public class GameClient {
 //        }
 //    }
 
-    public String leave() {
-        return "leaving...";
+    public String leave() throws ResponseException{
+        try {
+            wsFacade.leaveGame(authToken, gameID);
+            return "Leaving...";
+        } catch (Exception e) {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 
     private void inputFilter(int length, int desiredLength) throws ResponseException {
@@ -117,12 +123,6 @@ public class GameClient {
         } else if (length < desiredLength) {
             throw new ResponseException(400, "Error: Too few arguments given");
         }
-    }
-
-    // I am going to hope and pray that this is just "e4e6" format
-    private ChessMove inputToChessMove(String param) throws ResponseException {
-        ChessMove proposedMove;
-        return parseChessMove(param);
     }
 
     public ChessMove inputToPromotionMove(ChessMove oldMove, String param) {
@@ -176,16 +176,5 @@ public class GameClient {
                 default -> throw new ResponseException(400, "Error: Invalid move");
             };
         }
-    }
-
-    public boolean promotionFlagCheck(ChessPosition newPosition, ChessPiece piece) {
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                return (newPosition.getRow() == 1);
-            } else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                return (newPosition.getRow() == 8);
-            }
-        }
-        return false;
     }
 }

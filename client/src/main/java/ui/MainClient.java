@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.*;
 import server.ServerFacade;
 
@@ -126,7 +127,13 @@ public class MainClient {
                 System.out.println(team);
                 int newGameID = fakeToRealGameID.get(joinFilter(params[0]));
                 serverFacade.join(serverFacade.getAuth(), newGameID, team);
-                wsFacade.connect(serverFacade.getAuth(), newGameID, team);
+                ChessGame.TeamColor joinTeamColor = null;
+                if (team.contains("WHITE")) {
+                    joinTeamColor = ChessGame.TeamColor.WHITE;
+                } else if (team.contains("BLACK")) {
+                    joinTeamColor = ChessGame.TeamColor.BLACK;
+                }
+                wsFacade.connect(serverFacade.getAuth(), newGameID, joinTeamColor);
                 gameui.updateGameUI(serverFacade.getAuth(), newGameID);
                 if (team.contains("WHITE")) {
                     gameui.updateTeam(false);
@@ -159,7 +166,7 @@ public class MainClient {
                 joinFilter(params[0]);
                 gameui.updateTeam(false);
                 gameui.updateGameUI(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])));
-                wsFacade.connect(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])), "observer");
+                wsFacade.connect(serverFacade.getAuth(), fakeToRealGameID.get(joinFilter(params[0])), null);
                 return "Joining game as an observer...";
             } catch (Exception e) {
                 throw new ResponseException(400, e.getMessage());

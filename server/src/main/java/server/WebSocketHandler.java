@@ -128,10 +128,13 @@ public class WebSocketHandler {
         }
     }
 
-    private void canMove(ChessGame game) throws Exception {
+    private void canMove(ChessGame game, GameData gameData) throws Exception {
         if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)
                 || game.isInStalemate(game.getTeamTurn())) {
-            throw new Exception("The game has already ended, no more moves can be made buddy");
+            throw new Exception("Error: The game has already ended, no more moves can be made");
+        }
+        if (gameData.blackUsername() == null || gameData.whiteUsername() == null) {
+            throw new Exception("Error: You must have an opponent in order to move");
         }
     }
 
@@ -156,7 +159,7 @@ public class WebSocketHandler {
             resignFilter(session, command.getGameID(), username);
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game();
-            canMove(game); // This is for silly people who try to move if the game is already over
+            canMove(game, gameData);
             noOpponentMove(command.getMove(), username, gameData);
             game.makeMove(command.getMove()); // Error checking for move, doesn't actually update game
             gameService.updateGame(new GameData(command.getGameID(), gameData.whiteUsername(),
@@ -207,7 +210,7 @@ public class WebSocketHandler {
         }
         GameData game = gameService.getGame(gameID);
         if (game.whiteUsername() == null || game.blackUsername() == null) {
-            throw new Exception("Error: Someone has already resigned");
+            throw new Exception("Error: Someone need an opponent who hasn't resigned in order to play");
         }
         if (!game.whiteUsername().contains(username) && !game.blackUsername().contains(username)) {
             throw new Exception("Error: You cannot resign as an observer");
@@ -218,7 +221,7 @@ public class WebSocketHandler {
         try {
             resignFilter(session, command.getGameID(), username);
             broadcastMessage(command.getGameID(),
-                    new NotificationMessage("%s has resigned".formatted(username)),
+                    new NotificationMessage("%s has resigned or left the game".formatted(username)),
                     session, true);
             wsSessions.removeSessionFromGame(command.getGameID(), session);
             updateGameService(command.getGameID(), username);

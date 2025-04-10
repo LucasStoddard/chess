@@ -16,8 +16,6 @@ public class ClientMain {
     }
 }
 
-// TODO: Current problem is multiple sessions
-
 // Okay I think I've figured it out, people to server is a one way street, thus the only way we've used serverFacade is to communicate with the
 // server, (Ex. logging in, logging out, registering). ui.WebSocketFacade is NOT a one way street. WSfacade is a TWO way street, thus the ever so
 // sneaky printMessage will ALSO, before printing the message, use ui.WebSocketFacade to SEND a message to the Server. To visualize here is server
