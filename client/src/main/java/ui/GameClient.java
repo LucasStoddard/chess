@@ -58,7 +58,8 @@ public class GameClient {
                 " - to make a particular move within the game \n If your piece can be promoted, put the piece you would like to promote it to" +
                 " at the end" +
                 SET_TEXT_COLOR_CYAN + "resign" + SET_TEXT_COLOR_WHITE + " - to resign \n" +
-                SET_TEXT_COLOR_CYAN + "highlight legal moves <POSITION>" + SET_TEXT_COLOR_WHITE + " - highlight the legal moves a selected piece can make \n"
+                SET_TEXT_COLOR_CYAN + "highlight legal moves <POSITION>" + SET_TEXT_COLOR_WHITE +
+                " - highlight the legal moves a selected piece can make \n"
                 );
     }
 
