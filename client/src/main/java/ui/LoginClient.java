@@ -39,7 +39,7 @@ public class LoginClient {
     }
 
     public String quit() {
-        return "Quitting";
+        return "Quitting...";
     }
 
     public String login(String... params) throws ResponseException {

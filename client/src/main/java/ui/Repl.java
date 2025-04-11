@@ -38,7 +38,7 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
 
-        while (!result.equals("Quitting")) { // gameClient to be implemented later, not needed for now
+        while (!result.equals("Quitting...")) { // gameClient to be implemented later, not needed for now
             if (inGame) {
                 printGamePrompt();
             } else {
@@ -76,6 +76,8 @@ public class Repl {
                         gameClient.setGameClientTeam(true);
                     }
                     inGame = true;
+                } else if (result.contains("Leaving...")) {
+                    inGame = false;
                 }
             } catch (Throwable e) {
                 var msg = e.toString();

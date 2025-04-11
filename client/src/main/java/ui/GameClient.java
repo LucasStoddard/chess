@@ -55,11 +55,11 @@ public class GameClient {
                 SET_TEXT_COLOR_CYAN + "redraw" +  SET_TEXT_COLOR_WHITE + " - to redraw the chess board \n" +
                 SET_TEXT_COLOR_CYAN + "leave" + SET_TEXT_COLOR_WHITE + " - to leave the game \n" +
                 SET_TEXT_COLOR_CYAN + "make move <MOVE> <PROMOTION_PIECE>" + SET_TEXT_COLOR_WHITE +
-                " - to make a particular move within the game \n If your piece can be promoted, put the piece you would like to promote it to" +
-                " at the end" +
+                " - to make a particular move within the game \nIf your piece can be promoted, put the piece you would like to promote it to" +
+                " at the end\n" +
                 SET_TEXT_COLOR_CYAN + "resign" + SET_TEXT_COLOR_WHITE + " - to resign \n" +
                 SET_TEXT_COLOR_CYAN + "highlight legal moves <POSITION>" + SET_TEXT_COLOR_WHITE +
-                " - highlight the legal moves a selected piece can make \n"
+                " - highlight the legal moves a selected piece can make"
                 );
     }
 
@@ -104,7 +104,7 @@ public class GameClient {
         }
         int sPosRow = letterToRowCol(moveArray[0], true);
         int sPosCol = letterToRowCol(moveArray[1], false);
-        return new ChessPosition(sPosRow, sPosCol);
+        return new ChessPosition(sPosCol, sPosRow);
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException {

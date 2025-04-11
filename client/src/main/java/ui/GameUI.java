@@ -165,33 +165,24 @@ public class GameUI implements GameHandler {
         return printBoard(isWhite, true, position);
     }
 
-    private int numFlip(int rowCol) {
-        if (isWhite) {
-            return rowCol;
-        } else {
-            return 9 - rowCol;
-        }
-    }
 
     private String squareColor(int row, int col, ChessPosition position, Collection<ChessMove> validMoves, boolean highlightMoves) {
         if (highlightMoves) {
-            if (numFlip(position.getRow()) == row && numFlip(position.getColumn()) == col) {
+            if (position.getRow() == row && position.getColumn() == col) {
                 return SET_BG_COLOR_YELLOW;
             }
         }
-        int flippedCol = numFlip(col);
-        int flippedRow = numFlip(row);
         if (row % 2 == 0) {
             if (col % 2 == 0) {
-                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, flippedRow, flippedCol);
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, row, col);
             } else {
-                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, flippedRow, flippedCol);
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, row, col);
             }
         } else {
             if (col % 2 == 0) {
-                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, flippedRow, flippedCol);
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, row, col);
             } else {
-                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, flippedRow, flippedCol);
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, row, col);
             }
         }
     }
