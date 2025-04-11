@@ -68,10 +68,6 @@ public class WebSocketHandler {
         }
     }
 
-    private void serverError(Session session, String message) throws IOException {
-        session.getRemote().sendString(message);
-    }
-
     private void serverMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
     }
@@ -91,7 +87,7 @@ public class WebSocketHandler {
             GameData gameData = gameService.getGame(command.getGameID());
             ChessGame game = gameData.game();
             ChessGame.TeamColor teamColorJoin = command.getColor();
-            if (teamColorJoin == null) {   // observers
+            if (teamColorJoin == null) {                // observers
                 wsSessions.addSessionToGame(gameData.gameID(), session);
                 serverMessage(session, new LoadGameMessage(game));
                 broadcastMessage(gameData.gameID(),
@@ -102,7 +98,8 @@ public class WebSocketHandler {
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),
                             new NotificationMessage("%s has joined as white".formatted(username)), session, false);
-                } else if (gameData.blackUsername() != null && gameData.blackUsername().contains(username) && teamColorJoin == ChessGame.TeamColor.BLACK) {
+                } else if (gameData.blackUsername() != null && gameData.blackUsername().contains(username)
+                        && teamColorJoin == ChessGame.TeamColor.BLACK) {
                     wsSessions.addSessionToGame(gameData.gameID(), session);
                     serverMessage(session, new LoadGameMessage(game));
                     broadcastMessage(gameData.gameID(),

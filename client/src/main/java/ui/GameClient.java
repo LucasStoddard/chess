@@ -2,8 +2,6 @@ package ui;
 
 import chess.*;
 import model.*;
-import ui.WebSocketFacade;
-
 import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
@@ -20,7 +18,7 @@ public class GameClient {
         gameui = gameUI;
     }
 
-    public void GameClientInitialize(String auth, int id) {
+    public void gameClientInitialize(String auth, int id) {
         authToken = auth;
         gameID = id;
     }
@@ -32,7 +30,7 @@ public class GameClient {
 
     public String eval(String input) {
         if (!setUpFlag) {
-            GameClientInitialize(gameui.initGameClientAuth(), gameui.initGameClientID());
+            gameClientInitialize(gameui.initGameClientAuth(), gameui.initGameClientID());
             setUpFlag = true;
         }
         try {
@@ -44,7 +42,7 @@ public class GameClient {
                 case "redraw" -> redraw();
                 case "make" -> makeMove(params);
                 case "resign" -> resign();
-                //case "highlight" -> highlightLegalMoves(params);
+                case "highlight" -> highlightLegalMoves(params);
                 default -> helpCommands();
             };
         } catch (ResponseException e) {
@@ -60,7 +58,7 @@ public class GameClient {
                 " - to make a particular move within the game \n If your piece can be promoted, put the piece you would like to promote it to" +
                 " at the end" +
                 SET_TEXT_COLOR_CYAN + "resign" + SET_TEXT_COLOR_WHITE + " - to resign \n" +
-                SET_TEXT_COLOR_CYAN + "highlight legal moves" + SET_TEXT_COLOR_WHITE + " - highlight the legal moves a selected piece can make \n"
+                SET_TEXT_COLOR_CYAN + "highlight legal moves <POSITION>" + SET_TEXT_COLOR_WHITE + " - highlight the legal moves a selected piece can make \n"
                 );
     }
 
@@ -98,15 +96,24 @@ public class GameClient {
         }
     }
 
-//    public String highlightLegalMoves(String... params) throws ResponseException {
-//        inputFilter(params.length,3); // "legal moves" and then the actual position of the piece
-//        try {
-//            serverFacade.register(null); // TODO: This is wrong of course
-//            return "hehehe silly";
-//        } catch (ResponseException e) {
-//            throw new ResponseException(500, "Error: Invalid piece");
-//        }
-//    }
+    public ChessPosition parseChessPosition(String param) throws ResponseException{
+        String[] moveArray = param.split("");
+        if (moveArray.length != 2) {
+            throw new ResponseException(400, "Error: Invalid move");
+        }
+        int sPosRow = letterToRowCol(moveArray[0], true);
+        int sPosCol = letterToRowCol(moveArray[1], false);
+        return new ChessPosition(sPosRow, sPosCol);
+    }
+
+    public String highlightLegalMoves(String... params) throws ResponseException {
+        inputFilter(params.length,3); // "legal moves" and then the actual position of the piece
+        try {
+            return gameui.getGameStringHighlighted(parseChessPosition(params[2]));
+        } catch (ResponseException e) {
+            throw new ResponseException(500, "Error: Invalid piece");
+        }
+    }
 
     public String leave() throws ResponseException{
         try {

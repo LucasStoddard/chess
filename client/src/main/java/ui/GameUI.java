@@ -14,6 +14,9 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Collection;
+import java.util.Objects;
+
 public class GameUI implements GameHandler {
     WebSocketFacade wsFacade;
     ChessBoard board;
@@ -37,10 +40,6 @@ public class GameUI implements GameHandler {
         board = game.getBoard();
         gameID = newGame.gameID();
         return newGame;
-    }
-
-    public ChessGame getGame() {
-        return game;
     }
 
     public void updateWebSocketFacade(WebSocketFacade webSocketFacade) {
@@ -76,18 +75,18 @@ public class GameUI implements GameHandler {
     }
 
 
-    private String printBoard(boolean isReversed) {
+    private String printBoard(boolean isReversed, boolean highlightMoves, ChessPosition position) {
         StringBuilder boardString = new StringBuilder();
         if (isReversed) {
             boardString.append(firstRow(true));
             for (int i = 8; i > 0; i--) {
-                boardString.append(otherRow(i, true));
+                boardString.append(otherRow(i, true, highlightMoves, position));
             }
             boardString.append(firstRow(true));
         } else {
             boardString.append(firstRow(false));
             for (int i = 1; i < 9; i++) {
-                boardString.append(otherRow(i, false));
+                boardString.append(otherRow(i, false, highlightMoves, position));
             }
             boardString.append(firstRow(false));
         }
@@ -107,18 +106,24 @@ public class GameUI implements GameHandler {
         return boardString.toString();
     }
 
-    private String otherRow(int row, boolean isReversed) {
+    private String otherRow(int row, boolean isReversed, boolean highlightMoves, ChessPosition position) {
         StringBuilder boardString = new StringBuilder();
         boardString.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_CYAN);
         boardString.append(" %d ".formatted(row));
+        Collection<ChessMove> validMoves;
+        if (highlightMoves) {
+            validMoves = game.validMoves(position);
+        } else {
+            validMoves = null;
+        }
         if (isReversed) {
             for (int i = 1; i < 9; i++) {
-                boardString.append(squareColor(row, i));
+                boardString.append(squareColor(row, i, position, validMoves, highlightMoves));
                 boardString.append(piece(row, i));
             }
         } else {
             for (int i = 8; i > 0; i--) {
-                boardString.append(squareColor(row, i));
+                boardString.append(squareColor(row, i, position, validMoves, highlightMoves));
                 boardString.append(piece(row, i));
             }
         }
@@ -152,28 +157,57 @@ public class GameUI implements GameHandler {
         return boardString.toString();
     }
 
-    public String getGameStringBothSides() {
-        return printBoard(false) + "\n" + printBoard(true);
-    }
-
     public String getGameString() {
-        return printBoard(isWhite);
+        return printBoard(isWhite, false, null);
     }
 
-    private String squareColor(int row, int col) {
+    public String getGameStringHighlighted(ChessPosition position) {
+        return printBoard(isWhite, true, position);
+    }
+
+    private int numFlip(int rowCol) {
+        if (isWhite) {
+            return rowCol;
+        } else {
+            return 9 - rowCol;
+        }
+    }
+
+    private String squareColor(int row, int col, ChessPosition position, Collection<ChessMove> validMoves, boolean highlightMoves) {
+        if (highlightMoves) {
+            if (numFlip(position.getRow()) == row && numFlip(position.getColumn()) == col) {
+                return SET_BG_COLOR_YELLOW;
+            }
+        }
+        int flippedCol = numFlip(col);
+        int flippedRow = numFlip(row);
         if (row % 2 == 0) {
             if (col % 2 == 0) {
-                return SET_BG_COLOR_DARK_TAN;
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, flippedRow, flippedCol);
             } else {
-                return SET_BG_COLOR_LIGHT_TAN;
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, flippedRow, flippedCol);
             }
         } else {
             if (col % 2 == 0) {
-                return SET_BG_COLOR_LIGHT_TAN;
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_LIGHT_TAN, SET_BG_COLOR_WHITE, flippedRow, flippedCol);
             } else {
-                return SET_BG_COLOR_DARK_TAN;
+                return highlightSquareColor(highlightMoves, validMoves, SET_BG_COLOR_DARK_TAN, SET_BG_COLOR_BLACK, flippedRow, flippedCol);
             }
         }
+    }
+
+    public String highlightSquareColor(boolean highlightMoves, Collection<ChessMove> validMoves,
+                                       String mainColor, String alternativeColor, int row, int col) {
+        if (!highlightMoves) {
+            return mainColor;
+        } else {
+            for (ChessMove validMove : validMoves) {
+                if (Objects.equals(validMove.getEndPosition(), new ChessPosition(row, col))) {
+                    return alternativeColor;
+                }
+            }
+        }
+        return mainColor;
     }
 
     public String initGameClientAuth() {
