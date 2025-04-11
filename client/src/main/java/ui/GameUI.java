@@ -35,20 +35,18 @@ public class GameUI implements GameHandler {
         gameID = gameId;
     }
 
-    public GameData updateGame(GameData newGame) {
-        game = newGame.game();
-        board = game.getBoard();
-        gameID = newGame.gameID();
-        return newGame;
+    public void updateGame(ChessGame newGame) {
+        game = newGame;
+        board = newGame.getBoard();
     }
 
     public void updateWebSocketFacade(WebSocketFacade webSocketFacade) {
         wsFacade = webSocketFacade;
     }
 
-    public void printMessage(String message) throws ResponseException {
+    public void printMessage(String message) {
         if (message.contains("LOAD_GAME")) {
-            loadGame(new Gson().fromJson(message, LoadGameMessage.class), isWhite);
+            loadGame(new Gson().fromJson(message, LoadGameMessage.class));
         } else if (message.contains("ERROR")) {
             errorClient(new Gson().fromJson(message, ErrorMessage.class));
         } else {
@@ -56,9 +54,8 @@ public class GameUI implements GameHandler {
         }
     }
 
-    private void loadGame(LoadGameMessage message, Boolean isReversed) throws ResponseException {
-        board = message.getGame().getBoard();
-        game = message.getGame();
+    private void loadGame(LoadGameMessage message) {
+        updateGame(message.getGame());
         System.out.println(getGameString());
     }
 

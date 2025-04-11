@@ -1,10 +1,9 @@
 package ui;
 
-import model.GameData;
-import model.ResponseException;
+import chess.*;
 import websocket.messages.*;
 
 public interface GameHandler {
-    GameData updateGame(GameData game);
-    void printMessage(String message) throws ResponseException;
+    void updateGame(ChessGame game);
+    void printMessage(String message);
 }
